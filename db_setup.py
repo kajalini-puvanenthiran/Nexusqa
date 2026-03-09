@@ -83,6 +83,11 @@ def seed_sample_data(db):
     print(f"     ✅ Project created: {project.name} (ID: {project.id})")
 
     # ── Scan ─────────────────────────────────────────────────
+    from nexusqa.database.crud import get_scan
+    existing = get_scan(db, "demo-scan-001")
+    if existing:
+        print("     ⏭️  Demo scan already exists — skipping seed.")
+        return existing
     scan = create_scan(
         db,
         job_id="demo-scan-001",
