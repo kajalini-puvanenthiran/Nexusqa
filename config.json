@@ -1,0 +1,20 @@
+{
+    "project_name": "NexusQA",
+    "version": "2.0.0",
+    "description": "Anthropic-Native Autonomous QA System",
+    "environment": "local",
+    "database": {
+        "host": "localhost",
+        "port": 5432,
+        "name": "nexusqa"
+    },
+    "automation": {
+        "framework": "playwright",
+        "browser": "chromium",
+        "headless": true
+    },
+    "security": {
+        "scanner": "owasp-zap",
+        "zap_proxy": "http://127.0.0.1:8090"
+    }
+}

@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  nexusqa-api:
+    build: .
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - JIRA_URL=${JIRA_URL}
+      - JIRA_EMAIL=${JIRA_EMAIL}
+      - JIRA_TOKEN=${JIRA_TOKEN}
+    ports: ["8080:8080"]
+    depends_on: [redis, postgres, browser-sandbox]
+  
+  # Celery workers for async scan jobs
+  nexusqa-worker:
+    build: .
+    command: celery -A nexusqa.worker worker --concurrency=4
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+  
+  # Sandboxed browser for Computer Use
+  browser-sandbox:
+    image: anthropic/computer-use-demo:latest  # Official Anthropic image
+    ports: ["5900:5900", "6080:6080"]  # VNC + noVNC
+    shm_size: '2gb'
+  
+  redis:
+    image: redis:7-alpine
+    
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: nexusqa
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+  
+  # OWASP ZAP for security scanning
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.addrs.addr.name=.*
+    ports: ["8090:8090"]
