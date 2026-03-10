@@ -1,107 +1,101 @@
-from fastapi import FastAPI, BackgroundTasks, WebSocket
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, HttpUrl
-import anthropic
-import asyncio
-import json
-import uuid
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .database import engine, load_dotenv
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
+from .models import Base
+from .routes import auth, scans, reports, users, seo, debug, jira, search, settings, automation
 
-app = FastAPI(title="NEXUS QA — Powered by Claude", version="2.0.0")
-client = anthropic.Anthropic()
+# Create all DB tables (if not using Alembic currently)
+try:
+    print("[INIT] Creating database schema...", flush=True)
+    from .models import SystemConfig
+    Base.metadata.create_all(bind=engine)
+    print("[INIT] Schema verified/created successfully.", flush=True)
+except Exception as e:
+    print(f"[INIT ERROR] {e}", flush=True)
 
-class ScanRequest(BaseModel):
-    url: HttpUrl
-    scan_depth: int = 3
-    auth_config: dict = {}
-    enable_computer_use: bool = True
-    enable_extended_thinking: bool = True
-    jira_project: str = ""
+# Seed default admin user and user-provided admin
+from .database import SessionLocal
+from .models import User, UserRole, SystemConfig
+from .auth import hash_password
 
-def generate_job_id():
-    return str(uuid.uuid4())
+def seed_db():
+    print("[SEED] Starting database seeding...", flush=True)
+    db = SessionLocal()
+    try:
+        # Default Admin
+        admin = db.query(User).filter(User.email == "admin@nexusqa.com").first()
+        if not admin:
+            print("[SEED] Creating default admin user: admin@nexusqa.com", flush=True)
+            new_admin = User(
+                full_name="NEXUS Admin",
+                email="admin@nexusqa.com",
+                hashed_pw=hash_password("nexusqa_admin"),
+                role=UserRole.admin
+            )
+            db.add(new_admin)
 
-async def run_nexus_scan(job_id, request):
-    pass
-
-async def get_scan_messages(job_id):
-    return []
-
-@app.post("/scan")
-async def start_scan(request: ScanRequest, background_tasks: BackgroundTasks):
-    """Start an autonomous NEXUS QA scan."""
-    job_id = generate_job_id()
-    background_tasks.add_task(run_nexus_scan, job_id, request)
-    return {"job_id": job_id, "status": "started", "model": "claude-sonnet-4-5"}
-
-@app.websocket("/ws/{job_id}")
-async def stream_scan_progress(websocket: WebSocket, job_id: str):
-    """Stream real-time scan progress using Claude's streaming API."""
-    await websocket.accept()
-    
-    # Placeholder for system prompt and tools
-    NEXUS_QA_SYSTEM_PROMPT = "You are a QA agent..."
-    NEXUS_TOOLS = []
-    
-    # Stream Claude's reasoning to the dashboard in real-time
-    with client.messages.stream(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=8192,
-        system=NEXUS_QA_SYSTEM_PROMPT,
-        tools=NEXUS_TOOLS,
-        messages=await get_scan_messages(job_id),
-    ) as stream:
-        for text in stream.text_stream:
-            await websocket.send_json({"type": "reasoning", "content": text})
+        # User-requested Admin (from credentials provided)
+        admin_emails = ["kajip1998@gmail.com"]
+        for email in admin_emails:
+            user = db.query(User).filter(User.email == email).first()
+            if not user:
+                print(f"[SEED] Initializing root admin: {email}", flush=True)
+                user = User(
+                    full_name="Kaji Puvanenthiran",
+                    email=email,
+                    hashed_pw=hash_password("kajiP@2026"),
+                    role=UserRole.admin
+                )
+                db.add(user)
+            else:
+                # Ensure existing user is admin and has correct password
+                print(f"[SEED] Root admin validated: {email}", flush=True)
+                user.role = UserRole.admin
+                user.hashed_pw = hash_password("kajiP@2026")
         
-        final = stream.get_final_message()
-        await websocket.send_json({"type": "complete", "usage": {
-            "input_tokens": final.usage.input_tokens,
-            "output_tokens": final.usage.output_tokens,
-            "cache_read_input_tokens": getattr(final.usage, 'cache_read_input_tokens', 0),
-            "cache_creation_input_tokens": getattr(final.usage, 'cache_creation_input_tokens', 0),
-        }})
+        # Seed System Config
+        conf = db.query(SystemConfig).first()
+        if not conf:
+            print("[SEED] Initializing default system configuration", flush=True)
+            conf = SystemConfig(id=1)
+            db.add(conf)
 
-@app.get("/report/{job_id}/pdf")
-async def download_pdf_report(job_id: str):
-    """Generate PDF report — Claude writes the narrative sections."""
-    # Mocking DB query and findings
-    findings = [] 
-    
-    # Claude writes the executive summary
-    summary_response = client.messages.create(
-        model="claude-3-haiku-20240307",  # Fast for report generation
-        max_tokens=2048,
-        system="You are a QA director writing executive summaries. Be concise, business-focused, action-oriented.",
-        messages=[{"role": "user", "content": f"Write executive summary for: {json.dumps(findings[:10])}"}]
-    )
-    
-    # pdf_bytes = generate_pdf(findings, summary=summary_response.content[0].text)
-    pdf_bytes = b"PDF Bytes Mock Output"
-    
-    return StreamingResponse(
-        iter([pdf_bytes]),
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=nexusqa-report-{job_id}.pdf"}
-    )
+        db.commit()
+    except Exception as e:
+        print(f"[SEED ERROR] {e}", flush=True)
+        db.rollback()
+    finally:
+        db.close()
 
-@app.get("/mcp")  
-async def mcp_endpoint():
-    """
-    NEXUS QA as an MCP Server.
-    Any Claude-based tool (Claude Code, Claude.ai) can trigger scans.
-    """
-    return {
-        "name": "nexusqa",
-        "description": "Autonomous QA testing for any URL",
-        "tools": [
-            {
-                "name": "run_qa_scan",
-                "description": "Run full QA scan on a URL and return findings",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {"url": {"type": "string"}},
-                    "required": ["url"]
-                }
-            }
-        ]
-    }
+seed_db()
+
+app = FastAPI(
+    title="NEXUS QA API",
+    description="Autonomous Intelligence Testing Backend + Dashboard integration",
+    version="2.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router,    prefix="/auth",    tags=["Auth"])
+app.include_router(scans.router,   prefix="/scans",   tags=["Scans"])
+app.include_router(automation.router, prefix="/automation", tags=["Automation"])
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+app.include_router(users.router,   prefix="/users",   tags=["Users Management"])
+app.include_router(seo.router,     prefix="/seo",     tags=["SEO Engine"])
+app.include_router(debug.router,   prefix="/debug",   tags=["Auto Debug & Fix"])
+app.include_router(jira.router,    prefix="/jira",    tags=["JIRA Automation"])
+app.include_router(search.router,  prefix="/search",  tags=["Intelligence Search"])
+app.include_router(settings.router,prefix="/settings",tags=["System Configuration"])
+
+@app.get("/")
+def health_check():
+    return {"status": "ok", "service": "nexus_qa_api"}

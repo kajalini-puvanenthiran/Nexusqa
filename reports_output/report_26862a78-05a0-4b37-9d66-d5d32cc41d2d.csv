@@ -1,0 +1,21 @@
+NEXUS QA SCAN REPORT
+Scan ID,26862a78-05a0-4b37-9d66-d5d32cc41d2d
+Target URL,wps.bgvchecker.com
+Target Type,software
+Scan Mode,performance
+Status,done
+Score,78/100
+Generated,2026-03-10 04:56 UTC
+Completed,2026-03-10 04:56:36.664596
+
+FINDINGS SUMMARY
+Severity,Count
+Critical,0
+High,0
+Medium,5
+Low,7
+Auto-Fixed,4
+JIRA Created,0
+
+EXECUTIVE SUMMARY
+NEXUS QA PERFORMANCE agent completed analysis for SOFTWARE at wps.bgvchecker.com. Detected 0 priority issues and 12 warnings. AI successfully auto-healed 4 items. Health Score: 78/100.

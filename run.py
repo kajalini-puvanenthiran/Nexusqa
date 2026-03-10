@@ -177,34 +177,31 @@ def simulate_tool(name: str, args: dict) -> str:
 
 
 def print_banner(url: str, mode: str, live: bool):
-    print("\n" + "═"*62)
-    print("  🤖  NEXUS QA — Anthropic-Native AI Agent  v2.0")
-    print("═"*62)
-    print(f"  🎯 Target : {url}")
-    print(f"  🔍 Mode   : {mode.upper()}")
-    print(f"  🧠 Engine : {'Claude (live)' if live else 'Demo mode — add ANTHROPIC_API_KEY to .env for live'}")
-    print(f"  📅 Time   : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("═"*62 + "\n")
+    print("\n" + "="*62, flush=True)
+    print("  NEXUS QA  --  Anthropic-Native AI Agent  v2.0", flush=True)
+    print("="*62, flush=True)
+    print(f"  Target : {url}", flush=True)
+    print(f"  Mode   : {mode.upper()}", flush=True)
+    print(f"  Engine : {'Claude LIVE' if live else 'Demo mode (no API key required)'}", flush=True)
+    print(f"  Time   : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
+    print("="*62 + "\n", flush=True)
 
 
 async def run_scan_demo(url: str, mode: str):
-    """
-    Demo mode: simulates the full Claude agentic loop with realistic
-    tool calls and outputs when ANTHROPIC_API_KEY is not configured.
-    """
+    """Full agentic pipeline demo — no API key required."""
 
     DEMO_PLAN = [
         ("playwright_ui_test",      {"url": url, "test_scenario": "forms navigation responsive", "viewport": "1920x1080"}),
         ("playwright_ui_test",      {"url": url, "test_scenario": "mobile viewport", "viewport": "mobile"}),
         ("owasp_security_scan",     {"url": url, "scan_type": "passive"}),
-        ("lighthouse_performance",  {"url": url, "categories": ["performance", "seo", "accessibility", "best-practices"]}),
+        ("lighthouse_performance",  {"url": url, "categories": ["performance", "seo", "accessibility"]}),
         ("axe_accessibility_check", {"url": url}),
         ("seo_crawler",             {"url": url, "depth": 3}),
-        ("apply_seo_fix",           {"fix_type": "meta_desc", "url": url, "content": "Enterprise-grade QA automation powered by AI. Start your free scan today."}),
-        ("apply_seo_fix",           {"fix_type": "schema_jsonld", "url": url, "content": '{"@type":"Organization","name":"NEXUS QA"}'}),
-        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "Contact form broken on mobile Safari", "description": "Submit button click handler missing on mobile. JS error at contact.js:42.",     "severity": "Critical"}),
-        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "LCP 3.2s — Core Web Vitals failing",  "description": "Hero PNG 2.4MB causing LCP over budget. Convert to WebP + lazy load.",           "severity": "High"}),
-        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "WCAG AA color contrast violation",    "description": "Nav links contrast 3.2:1 vs 4.5:1 required. Change #aaa to #767676.",              "severity": "High"}),
+        ("apply_seo_fix",           {"fix_type": "meta_desc",    "url": url, "content": "Enterprise QA powered by AI. Start your free scan today."}),
+        ("apply_seo_fix",           {"fix_type": "schema_jsonld","url": url, "content": '{"@type":"Organization","name":"NEXUS QA"}'}),
+        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "Contact form broken on mobile Safari",     "description": "Submit button JS error at contact.js:42 on iOS Safari.", "severity": "Critical"}),
+        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "LCP 3.2s -- Core Web Vitals failing",     "description": "Hero PNG 2.4MB causing LCP over budget. Convert to WebP.", "severity": "High"}),
+        ("create_jira_ticket",      {"issue_type": "Bug",  "title": "WCAG AA color contrast violation on nav", "description": "Nav links 3.2:1 vs 4.5:1 required. Fix: change #aaa to #767676.", "severity": "High"}),
         ("generate_qa_report",      {"format": "markdown", "include_fixes": True}),
     ]
 
@@ -212,68 +209,82 @@ async def run_scan_demo(url: str, mode: str):
     jira_tickets = []
     seo_fixes = []
 
+    thoughts = {
+        "playwright_ui_test":      "Testing UI flows, forms and responsive layouts...",
+        "owasp_security_scan":     "Running OWASP Top 10 passive security scan...",
+        "lighthouse_performance":  "Auditing Core Web Vitals and performance metrics...",
+        "axe_accessibility_check": "Checking WCAG 2.1 accessibility compliance...",
+        "seo_crawler":             "Crawling pages for technical SEO issues...",
+        "apply_seo_fix":           "Auto-fixing detected SEO issue...",
+        "create_jira_ticket":      "Creating JIRA ticket for finding...",
+        "generate_qa_report":      "Synthesizing all findings into final QA report...",
+    }
+
+    total = len(DEMO_PLAN)
     for i, (tool_name, tool_args) in enumerate(DEMO_PLAN, 1):
-        time.sleep(0.5)  # Realistic pacing
+        time.sleep(0.3)
+        print(f"  [Claude]  {thoughts.get(tool_name, 'Processing...')}", flush=True)
+        print(f"  [{i:02d}/{total}] {tool_name}", flush=True)
 
-        # Print Claude "thinking" before each tool call
-        thoughts = {
-            "playwright_ui_test":      "→ Testing UI flows, forms and responsive layouts...",
-            "owasp_security_scan":     "→ Running OWASP Top 10 passive security scan...",
-            "lighthouse_performance":  "→ Auditing Core Web Vitals and performance metrics...",
-            "axe_accessibility_check": "→ Checking WCAG 2.1 accessibility compliance...",
-            "seo_crawler":             "→ Crawling pages for technical SEO issues...",
-            "apply_seo_fix":           "→ Auto-fixing detected SEO issue...",
-            "create_jira_ticket":      "→ Creating JIRA ticket for finding...",
-            "generate_qa_report":      "→ Synthesizing all findings into final QA report...",
-        }
-        print(f"  💭 Claude {thoughts.get(tool_name, '→ Processing...')}")
-        print(f"  🔧 [{i:02d}/{len(DEMO_PLAN)}] Tool: {tool_name}(url={url[:40]}...)")
-
-        result_str = simulate_tool(tool_name, tool_args)
-        result = json.loads(result_str)
+        result = json.loads(simulate_tool(tool_name, tool_args))
 
         if tool_name == "create_jira_ticket":
             jira_tickets.append(result)
-            print(f"         🎫 JIRA created: {result.get('ticket_id')} [{tool_args['severity']}] {tool_args['title'][:50]}")
+            tid = result.get("ticket_id", "NEXUSQA-000")
+            sev = tool_args["severity"]
+            ttl = tool_args["title"][:55]
+            print(f"          >> JIRA created: {tid} [{sev}] {ttl}", flush=True)
+
         elif tool_name == "apply_seo_fix":
             seo_fixes.append(result)
-            print(f"         ✅ SEO fixed: {tool_args['fix_type']} on {url[:40]}")
+            ft = tool_args["fix_type"]
+            print(f"          >> SEO AUTO-FIXED: {ft}", flush=True)
+
         elif tool_name == "generate_qa_report":
             report = result.get("report", {})
-            findings_summary = report.get("findings", {})
-            print(f"\n  {'─'*58}")
-            print(f"  📊 FINAL QA REPORT")
-            print(f"  {'─'*58}")
-            print(f"  {report.get('executive_summary', '')}")
-            print(f"\n  Findings: 🔴 Critical: {findings_summary.get('critical',0)}  "
-                  f"🟠 High: {findings_summary.get('high',0)}  "
-                  f"🟡 Medium: {findings_summary.get('medium',0)}  "
-                  f"🟢 Low: {findings_summary.get('low',0)}")
-            print(f"  Auto-fixed: {findings_summary.get('auto_fixed',0)}  |  "
-                  f"JIRA tickets: {findings_summary.get('jira_created',0)}")
-            print(f"\n  Top Issues:")
+            fs     = report.get("findings", {})
+            print("", flush=True)
+            print(f"  {'='*58}", flush=True)
+            print(f"  FINAL QA REPORT -- NEXUS QA", flush=True)
+            print(f"  {'='*58}", flush=True)
+            print(f"  {report.get('executive_summary','')}", flush=True)
+            print("", flush=True)
+            print(f"  RESULTS:", flush=True)
+            print(f"    Critical   : {fs.get('critical',0)}", flush=True)
+            print(f"    High       : {fs.get('high',0)}", flush=True)
+            print(f"    Medium     : {fs.get('medium',0)}", flush=True)
+            print(f"    Low        : {fs.get('low',0)}", flush=True)
+            print(f"    Auto-fixed : {fs.get('auto_fixed',0)}", flush=True)
+            print(f"    JIRA       : {fs.get('jira_created',0)} tickets created", flush=True)
+            print("", flush=True)
+            print(f"  TOP ISSUES:", flush=True)
             for issue in report.get("top_issues", []):
-                print(f"    • {issue}")
-            print(f"\n  Recommendations:")
+                print(f"    - {issue}", flush=True)
+            print("", flush=True)
+            print(f"  RECOMMENDATIONS:", flush=True)
             for rec in report.get("recommendations", "").split(". "):
                 if rec.strip():
-                    print(f"    → {rec.strip()}")
+                    print(f"    -> {rec.strip()}", flush=True)
+
         else:
             findings.append({"tool": tool_name, "result": result})
 
-    print(f"\n  {'═'*58}")
-    print(f"  ✅ NEXUS QA Scan Complete")
-    print(f"  {'═'*58}")
-    print(f"  🔧 Tools executed : {len(DEMO_PLAN)}")
-    print(f"  🎫 JIRA tickets   : {len(jira_tickets)}")
-    print(f"  🔧 SEO auto-fixes : {len(seo_fixes)}")
-    print(f"  📋 Data collected : {len(findings)} tool results")
-    print(f"  {'═'*58}\n")
+    print("", flush=True)
+    print(f"  {'='*58}", flush=True)
+    print(f"  NEXUS QA SCAN COMPLETE", flush=True)
+    print(f"  {'='*58}", flush=True)
+    print(f"  Tools executed : {total}", flush=True)
+    print(f"  JIRA tickets   : {len(jira_tickets)}", flush=True)
+    print(f"  SEO auto-fixes : {len(seo_fixes)}", flush=True)
+    print(f"  Results saved  : logs/latest_run.log", flush=True)
+    print(f"  {'='*58}", flush=True)
+    print("", flush=True)
+    print(f"  To run with LIVE Claude AI:", flush=True)
+    print(f"    1. Get key : https://console.anthropic.com", flush=True)
+    print(f"    2. Set in .env : ANTHROPIC_API_KEY=sk-ant-...", flush=True)
+    print(f"    3. Run    : python run.py scan {url}", flush=True)
+    print("", flush=True)
 
-    print(f"  ⚡ To run with LIVE Claude AI:")
-    print(f"     1. Get key: https://console.anthropic.com")
-    print(f"     2. Set in .env: ANTHROPIC_API_KEY=sk-ant-...")
-    print(f"     3. Run again: python run.py scan {url}\n")
 
 
 async def run_scan_live(url: str, mode: str):
@@ -306,10 +317,10 @@ End with generate_qa_report in markdown format."""
         for block in response.content:
             if hasattr(block, "text") and block.text:
                 preview = block.text[:400].replace("\n", " ")
-                print(f"\n  💬 {preview}{'...' if len(block.text) > 400 else ''}\n")
+                print(f"\n{preview}{'...' if len(block.text) > 400 else ''}\n")
 
         if response.stop_reason == "end_turn":
-            print("  ✅ Scan complete.\n")
+            print("Scan complete.\n")
             break
 
         if response.stop_reason == "tool_use":
@@ -328,23 +339,23 @@ End with generate_qa_report in markdown format."""
 async def run_debug(log_file: str):
     """Auto-debug an error log file using Claude."""
     if not os.path.exists(log_file):
-        print(f"\n❌  File not found: {log_file}")
+        print(f"\nFile not found: {log_file}")
         sys.exit(1)
 
     with open(log_file, "r") as f:
         log_content = f.read()
 
     print(f"\n{'═'*62}")
-    print(f"  🐛 NEXUS QA — Auto-Debug Agent")
-    print(f"  📄 Log: {log_file}")
+    print(f"NEXUS QA — Auto-Debug Agent")
+    print(f"Log: {log_file}")
     print(f"{'═'*62}\n")
 
     if DEMO_MODE:
         result = simulate_tool("analyze_error_log", {"log_content": log_content})
         parsed = json.loads(result)
-        print(f"  🔍 Root Cause: {parsed.get('root_cause')}")
-        print(f"  📄 File: {parsed.get('file')} Line: {parsed.get('line')}")
-        print(f"  💡 Fix: {parsed.get('fix')}")
+        print(f"Root Cause: {parsed.get('root_cause')}")
+        print(f"File: {parsed.get('file')} Line: {parsed.get('line')}")
+        print(f" Fix: {parsed.get('fix')}")
     else:
         import anthropic
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -367,8 +378,8 @@ def start_server():
 
     host = os.getenv("APP_HOST", "0.0.0.0")
     port = int(os.getenv("APP_PORT", "8080"))
-    print(f"\n🚀 NEXUS QA API starting at http://localhost:{port}")
-    print(f"   Docs: http://localhost:{port}/docs\n")
+    print(f"\n NEXUS QA API starting at http://localhost:{port}")
+    print(f"Docs: http://localhost:{port}/docs\n")
     sys.path.insert(0, os.path.dirname(__file__))
     uvicorn.run("api.main:app", host=host, port=port, reload=True)
 
@@ -376,7 +387,7 @@ def start_server():
 def main():
     parser = argparse.ArgumentParser(
         prog="nexusqa",
-        description="🤖 NEXUS QA — Anthropic-Native AI Agent",
+        description="NEXUS QA — Anthropic-Native AI Agent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

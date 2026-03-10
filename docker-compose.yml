@@ -1,39 +1,105 @@
-version: '3.9'
+version: '3.8'
+
 services:
-  nexusqa-api:
-    build: .
+  # Primary App DB (PostgreSQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexusqa_postgres
+    restart: always
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - JIRA_URL=${JIRA_URL}
-      - JIRA_EMAIL=${JIRA_EMAIL}
-      - JIRA_TOKEN=${JIRA_TOKEN}
-    ports: ["8080:8080"]
-    depends_on: [redis, postgres, browser-sandbox]
-  
-  # Celery workers for async scan jobs
-  nexusqa-worker:
-    build: .
-    command: celery -A nexusqa.worker worker --concurrency=4
+      POSTGRES_USER: nexusqa
+      POSTGRES_PASSWORD: nexusqa123
+      POSTGRES_DB: nexusqa
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  # Reporting / Analysis DB (MySQL - requested)
+  mysql:
+    image: mysql:8.0
+    container_name: nexusqa_mysql
+    restart: always
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-  
-  # Sandboxed browser for Computer Use
-  browser-sandbox:
-    image: anthropic/computer-use-demo:latest  # Official Anthropic image
-    ports: ["5900:5900", "6080:6080"]  # VNC + noVNC
-    shm_size: '2gb'
-  
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: nexusqa_reports
+      MYSQL_USER: nexusqa
+      MYSQL_PASSWORD: nexusqa123
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  # Redis (Task Queue)
   redis:
     image: redis:7-alpine
-    
-  postgres:
-    image: postgres:16
+    container_name: nexusqa_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # Backend (FastAPI + Playwright)
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: nexusqa_backend
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+      - mysql
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app/api
+      - ./nexusqa:/app/nexusqa
+      - ./reports_output:/app/reports_output
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: nexusqa_frontend
+    restart: always
+    depends_on:
+      - backend
+    env_file: .env
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./dashboard/src:/app/src
+      - ./dashboard/public:/app/public
+
+  # n8n Workflow Automation (requested)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nexusqa_n8n
+    restart: always
+    ports:
+      - "5678:5678"
     environment:
-      POSTGRES_DB: nexusqa
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-  
-  # OWASP ZAP for security scanning
-  zap:
-    image: ghcr.io/zaproxy/zaproxy:stable
-    command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.addrs.addr.name=.*
-    ports: ["8090:8090"]
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+    volumes:
+      - ./data/n8n:/home/node/.n8n
+
+  # Jenkins CI/CD (requested)
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: nexusqa_jenkins
+    restart: always
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - ./data/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # For Docker-in-Docker
+
+volumes:
+  data:

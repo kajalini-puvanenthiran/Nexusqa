@@ -1,8 +1,7 @@
 # Core Anthropic SDK
-anthropic>=0.40.0       # Claude Messages, Tool Use, 
-                        # Computer Use, Batch API
+anthropic>=0.40.0
 
-# Testing Tools (called by Claude)
+# Testing Tools
 playwright>=1.40.0
 python-owasp-zap-v2.4
 selenium>=4.15.0
@@ -11,26 +10,36 @@ axe-playwright>=0.1.3
 # Performance Testing
 locust>=2.20.0
 
-# SEO Tools  
+# SEO Tools
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 Pillow>=10.0.0
 
 # JIRA Integration
 jira>=3.5.0
-sentence-transformers>=2.2.0  # Duplicate detection
+sentence-transformers>=2.2.0
 
-# API Backend
+# API Backend & Database
 fastapi>=0.104.0
 uvicorn>=0.24.0
-redis>=5.0.0
-celery>=5.3.0
+sqlalchemy>=2.0.0
+pymysql>=1.1.0
+aiomysql>=0.2.0
+cryptography>=42.0.0
+pydantic[email]>=2.5.0
+python-multipart>=0.0.6
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0
+authlib>=1.3.0
+httpx>=0.25.0
 
 # Report Generation
 weasyprint>=60.0
 reportlab>=4.0.0
 
 # Infrastructure
-pydantic>=2.5.0
 python-dotenv>=1.0.0
 mcp>=1.0.0
+redis>=5.0.0
+celery>=5.3.0

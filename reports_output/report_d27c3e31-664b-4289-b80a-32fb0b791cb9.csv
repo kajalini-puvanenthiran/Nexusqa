@@ -1,0 +1,21 @@
+NEXUS QA SCAN REPORT
+Scan ID,d27c3e31-664b-4289-b80a-32fb0b791cb9
+Target URL,envoyortus.com
+Target Type,website
+Scan Mode,full
+Status,done
+Score,5/100
+Generated,2026-03-10 07:06 UTC
+Completed,2026-03-10 07:06:45.574715
+
+FINDINGS SUMMARY
+Severity,Count
+Critical,2
+High,1
+Medium,10
+Low,40
+Auto-Fixed,3
+JIRA Created,3
+
+EXECUTIVE SUMMARY
+NEXUS QA FULL agent completed analysis for WEBSITE at envoyortus.com. Detected 3 priority issues and 50 warnings. AI successfully auto-healed 3 items. Health Score: 5/100.

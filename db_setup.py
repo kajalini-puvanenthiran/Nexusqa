@@ -31,12 +31,12 @@ def ensure_packages():
         try:
             __import__(import_name)
         except ImportError:
-            print(f"  📦 Installing missing package: {pkg_name}...")
+            print(f"Installing missing package: {pkg_name}...")
             subprocess.check_call(
                 [sys.executable, "-m", "pip", "install", pkg_name, "--quiet"],
                 stdout=subprocess.DEVNULL,
             )
-            print(f"  ✅ Installed: {pkg_name}")
+            print(f"Installed: {pkg_name}")
 
 ensure_packages()
 
@@ -70,7 +70,7 @@ os.makedirs(os.path.join(os.path.dirname(__file__), "reports"), exist_ok=True)
 # SEED DATA
 # ─────────────────────────────────────────────────────────────
 def seed_sample_data(db):
-    print("\n  🌱 Seeding sample data...")
+    print("\n Seeding sample data...")
 
     # ── Project ──────────────────────────────────────────────
     project = create_project(
@@ -80,13 +80,13 @@ def seed_sample_data(db):
         description="Demo project for NEXUS QA",
         jira_key="NEXUSQA",
     )
-    print(f"     ✅ Project created: {project.name} (ID: {project.id})")
+    print(f"Project created: {project.name} (ID: {project.id})")
 
     # ── Scan ─────────────────────────────────────────────────
     from nexusqa.database.crud import get_scan
     existing = get_scan(db, "demo-scan-001")
     if existing:
-        print("     ⏭️  Demo scan already exists — skipping seed.")
+        print("Demo scan already exists — skipping seed.")
         return existing
     scan = create_scan(
         db,
@@ -97,7 +97,7 @@ def seed_sample_data(db):
     )
     scan.project_id = project.id
     db.commit()
-    print(f"     ✅ Scan created: {scan.job_id} (ID: {scan.id})")
+    print(f"Scan created: {scan.job_id} (ID: {scan.id})")
 
     # ── Agent Runs ───────────────────────────────────────────
     for agent_name, model in [
@@ -109,7 +109,7 @@ def seed_sample_data(db):
     ]:
         run = create_agent_run(db, scan.id, agent_name, model)
         complete_agent_run(db, run.id, status="complete", tool_calls=3, findings_found=1, token_input=800, token_output=400, duration_secs=4.5)
-    print(f"     ✅ 5 agent runs seeded")
+    print(f"5 agent runs seeded")
 
     # ── Findings ─────────────────────────────────────────────
     sample_findings = [
@@ -184,7 +184,7 @@ def seed_sample_data(db):
             ticket_url=f"https://clustersco.atlassian.net/browse/NEXUSQA-{100 + idx}",
             issue_type="Bug",
         )
-    print(f"     ✅ {len(jira_targets)} JIRA tickets seeded")
+    print(f"{len(jira_targets)} JIRA tickets seeded")
 
     # ── SEO Fixes ────────────────────────────────────────────
     seo_findings = [f for f in created_findings if f.auto_fixed]
@@ -199,7 +199,7 @@ def seed_sample_data(db):
             new_value=finding.fix_content or "auto-generated",
             applied=True,
         )
-    print(f"     ✅ {len(seo_findings)} SEO fixes seeded")
+    print(f"{len(seo_findings)} SEO fixes seeded")
 
     # ── Sample Report ─────────────────────────────────────────
     report_content = json.dumps({
@@ -212,7 +212,7 @@ def seed_sample_data(db):
         "generated_at": datetime.utcnow().isoformat(),
     }, indent=2)
     create_report(db, scan_id=scan.id, format="json", content=report_content)
-    print(f"     ✅ Sample JSON report seeded")
+    print(f"Sample JSON report seeded")
 
     # Update scan summary
     update_scan_status(
@@ -222,7 +222,7 @@ def seed_sample_data(db):
         auto_fixed_count=2, duration_seconds=47.3,
     )
 
-    print("\n  ✅ Sample data seeding complete!\n")
+    print("\n Sample data seeding complete!\n")
     return scan
 
 
@@ -238,12 +238,12 @@ def create_backup():
         db_path = os.path.join(os.path.dirname(__file__), db_path.lstrip("./"))
 
         if not os.path.exists(db_path):
-            print("  ⚠️  No SQLite database file found to backup.")
+            print("No SQLite database file found to backup.")
             return None
 
         backup_path = os.path.join(BACKUP_DIR, f"nexusqa_backup_{timestamp}.db")
         shutil.copy2(db_path, backup_path)
-        print(f"\n  💾 SQLite Backup created: {backup_path}")
+        print(f"\n SQLite Backup created: {backup_path}")
 
         # Also export as SQL dump
         sql_backup = os.path.join(BACKUP_DIR, f"nexusqa_backup_{timestamp}.sql")
@@ -252,7 +252,7 @@ def create_backup():
             for line in conn.iterdump():
                 f.write(f"{line}\n")
         conn.close()
-        print(f"  💾 SQL Dump created:      {sql_backup}")
+        print(f" SQL Dump created:      {sql_backup}")
         return backup_path
 
     else:
@@ -264,13 +264,13 @@ def create_backup():
                 capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"\n  💾 PostgreSQL Backup created: {backup_path}")
+                print(f"\n PostgreSQL Backup created: {backup_path}")
                 return backup_path
             else:
-                print(f"  ❌ pg_dump failed: {result.stderr}")
+                print(f"pg_dump failed: {result.stderr}")
                 return None
         except FileNotFoundError:
-            print("  ⚠️  pg_dump not found. Install PostgreSQL client tools for server backups.")
+            print("pg_dump not found. Install PostgreSQL client tools for server backups.")
             return None
 
 
@@ -292,9 +292,9 @@ def main():
 
     # ── Health Check ─────────────────────────────────────────
     if args.check:
-        print("\n  🔍 Running health check...")
+        print("\n Running health check...")
         ok = health_check()
-        print(f"  {'✅ Database OK' if ok else '❌ Database FAILED'}")
+        print(f"  {'Database OK' if ok else 'Database FAILED'}")
         return
 
     # ── Backup only ──────────────────────────────────────────
@@ -304,11 +304,11 @@ def main():
 
     # ── Reset ────────────────────────────────────────────────
     if args.reset:
-        print("\n  ⚠️  Resetting database (dropping all tables)...")
+        print("\n Resetting database (dropping all tables)...")
         drop_all()
 
     # ── Create tables ─────────────────────────────────────────
-    print("\n  🔨 Creating database tables...")
+    print("\n Creating database tables...")
     init_db()
 
     # ── Seed data ─────────────────────────────────────────────
@@ -319,20 +319,20 @@ def main():
         db.close()
 
     # ── Health check ─────────────────────────────────────────
-    print("  🔍 Running health check...")
+    print(" Running health check...")
     health_check()
 
     # ── Auto backup after creation ────────────────────────────
-    print("  💾 Creating initial backup...")
+    print("Creating initial backup...")
     create_backup()
 
     # ── Summary ──────────────────────────────────────────────
     print("\n" + "="*60)
-    print("  ✅ Database Setup Complete!")
+    print("Database Setup Complete!")
     print("="*60)
-    print(f"  Tables   : 7 tables created")
-    print(f"  Seed data: 1 project, 1 scan, 5 agents, 6 findings")
-    print(f"  Backup   : {BACKUP_DIR}")
+    print(f"Tables   : 7 tables created")
+    print(f"Seed data: 1 project, 1 scan, 5 agents, 6 findings")
+    print(f"TBackup   : {BACKUP_DIR}")
     print(f"\n  Commands:")
     print(f"    python db_setup.py --check   → health check")
     print(f"    python db_setup.py --backup  → backup now")

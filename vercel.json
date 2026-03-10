@@ -1,0 +1,26 @@
+{
+    "version": 2,
+    "name": "nexusqa-dashboard",
+    "framework": "vite",
+    "root": "dashboard",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "trailingSlash": false,
+    "cleanUrls": true,
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://nexus-qa-api.vercel.app/api/$1"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ],
+    "env": {
+        "VITE_API_URL": "https://nexus-qa-api.vercel.app"
+    },
+    "regions": [
+        "cle1"
+    ]
+}
