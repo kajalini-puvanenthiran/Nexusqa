@@ -10,6 +10,32 @@
     <title>NEXUS QA | Autonomous Intelligence</title>
   </head>
   <body>
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        var div = document.createElement('div');
+        div.style.position = 'fixed';
+        div.style.top = '0';
+        div.style.left = '0';
+        div.style.width = '100%';
+        div.style.height = '100%';
+        div.style.backgroundColor = 'black';
+        div.style.color = '#ff1744';
+        div.style.fontFamily = 'monospace';
+        div.style.padding = '20px';
+        div.style.zIndex = '999999';
+        div.style.overflow = 'auto';
+        div.innerHTML = '<h1 style="color:white">NEXUS FATAL ERROR DETECTED</h1>' +
+                        '<p><b>Message:</b> ' + msg + '</p>' +
+                        '<p><b>Source:</b> ' + url + '</p>' +
+                        '<p><b>Line:</b> ' + line + ' <b>Col:</b> ' + col + '</p>' +
+                        '<pre>' + (error ? error.stack : 'No stack trace available') + '</pre>' +
+                        '<p style="color:cyan">Tip: Try clearing browser cache or check if Node version is 20.19+ / 22.12+</p>';
+        document.body.appendChild(div);
+      };
+      window.addEventListener('unhandledrejection', function(event) {
+        window.onerror('Unhandled Promise Rejection: ' + event.reason);
+      });
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

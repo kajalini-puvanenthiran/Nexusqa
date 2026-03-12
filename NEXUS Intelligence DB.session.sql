@@ -1,1 +1,2 @@
-SHOW databases;
+SELECT *
+from system_config;

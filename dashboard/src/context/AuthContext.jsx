@@ -9,12 +9,24 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const token = localStorage.getItem("nexusqa_token");
+        console.log("[AUTH] Initializing...", { hasToken: !!token });
         if (token) {
             auth.me()
-                .then(r => setUser(r.data))
-                .catch(() => { localStorage.clear(); setUser(null); })
-                .finally(() => setLoading(false));
+                .then(r => {
+                    console.log("[AUTH] Session validated:", r.data.email);
+                    setUser(r.data);
+                })
+                .catch(err => { 
+                    console.error("[AUTH] Session invalid:", err.message);
+                    localStorage.clear(); 
+                    setUser(null); 
+                })
+                .finally(() => {
+                    console.log("[AUTH] Ready.");
+                    setLoading(false);
+                });
         } else {
+            console.log("[AUTH] No session found. Ready.");
             setLoading(false);
         }
     }, []);

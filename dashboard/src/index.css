@@ -1,3 +1,70 @@
-:root { margin: 0; padding: 0; }
-body { margin: 0; padding: 0; background: #03070d; }
-#root { min-height: 100vh; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Global Core Theme Variables */
+  --bg: #03070d;
+  --panel: #070f1a;
+  --border: #0d2035;
+  --text: #c0d8f0;
+  --muted: #3a6080;
+  --heading: #ffffff;
+  --input-bg: rgba(255,255,255,0.03);
+  
+  /* Nexus System Intelligence Variables — Synchronized with Dashboard */
+  --nexus-primary-color: #00e5ff;
+  --nexus-secondary-color: #0044ff;
+  --nexus-text-color: #ffffff;
+  --nexus-icon-color: #00e5ff;
+  --nexus-font-family: 'Inter', sans-serif;
+  --nexus-button-color: #00e5ff;
+  --nexus-sidebar-bg: #070f1a;
+}
+
+* {
+  box-sizing: border-box;
+  transition: background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--nexus-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Scrollbar Protocol */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--nexus-primary-color);
+}
+
+/* Intelligence Overrides */
+::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}

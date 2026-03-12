@@ -8,7 +8,13 @@ import { useEffect } from "react";
 
 function ProtectedRoute({ children, adminOnly }) {
   const { user, loading } = useAuth();
-  if (loading) return <div style={{ minHeight: "100vh", background: "#03070d", display: "flex", alignItems: "center", justifyContent: "center", color: "#00e5ff", fontFamily: "monospace", fontSize: 12 }}>⟳ Loading...</div>;
+  if (loading) return (
+    <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: "2px solid #00e5ff" }}>
+      <div style={{ fontSize: 40, marginBottom: 20 }}></div>
+      <div style={{ color: "#00e5ff", fontFamily: "Orbitron, monospace", fontSize: 14 }}>NEXUS CORE CONNECTING</div>
+      <div style={{ color: "#3a6080", fontSize: 10, marginTop: 10 }}>Checking protocols & encrypted session</div>
+    </div>
+  );
   if (!user) return <Navigate to="/login" replace />;
   if (adminOnly && user.role !== "admin") return <Navigate to="/dashboard" replace />;
   return children;
@@ -16,7 +22,11 @@ function ProtectedRoute({ children, adminOnly }) {
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return (
+    <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ color: "#00e5ff", fontSize: 12 }}>Initializing NEXUS Login Interface...</div>
+    </div>
+  );
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }

@@ -27,7 +27,7 @@ class UserOut(UserBase):
         from_attributes = True
 
 class RoleUpdate(BaseModel):
-    role: str
+    role: UserRole
 
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None

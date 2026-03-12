@@ -52,12 +52,12 @@ export const NAV = [
 ];
 
 export const C = {
-  bg: "var(--bg, #03070d)",
-  panel: "var(--panel, #070f1a)",
-  border: "var(--border, #0d2035)",
-  cyan: "#00e5ff",
+  bg: "var(--bg)",
+  panel: "var(--panel)",
+  border: "var(--border)",
+  cyan: "var(--nexus-primary-color, #00e5ff)",
   gold: "#ffd600",
-  violet: "#b388ff",
+  violet: "var(--nexus-secondary-color, #b388ff)",
   green: "#00e676",
   red: "#ff1744",
   orange: "#ff9100",
@@ -66,5 +66,5 @@ export const C = {
   muted: "var(--muted, #3a6080)",
   heading: "var(--heading, #ffffff)",
   inputBg: "var(--input-bg, rgba(255,255,255,0.03))",
-  font: "'Inter', system-ui, sans-serif",
+  font: "var(--nexus-font-family, 'Inter', sans-serif)",
 };

@@ -7,9 +7,9 @@ export function NotificationProvider({ children }) {
     const [notifications, setNotifications] = useState([]);
     const [activeToasts, setActiveToasts] = useState([]);
 
-    const notify = useCallback((text, type = "info") => {
-        const id = Date.now();
-        const newNote = { id, text, type, time: new Date().toLocaleTimeString(), read: false };
+    const notify = useCallback((text, type = "info", detail = "") => {
+        const id = Date.now().toString();
+        const newNote = { id, text, type, detail, time: new Date().toLocaleTimeString(), read: false };
 
         // Add to persistent list
         setNotifications(prev => [newNote, ...prev]);

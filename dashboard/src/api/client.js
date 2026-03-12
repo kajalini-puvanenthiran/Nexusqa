@@ -54,6 +54,7 @@ export const debug = {
 export const jira = {
     list: () => client.get("/jira/tickets"),
     sync: () => client.post("/jira/sync"),
+    update: (id, d) => client.put(`/jira/tickets/${id}`, d),
     delete: (id) => client.delete(`/jira/tickets/${id}`),
 };
 

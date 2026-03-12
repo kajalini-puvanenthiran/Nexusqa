@@ -29,10 +29,11 @@ class ScanResponse(BaseModel):
     findings:   dict
     summary:    Optional[str]
     score:      int
+    report_id:  Optional[str] = None
     created_at: datetime
     class Config: from_attributes = True
 
-from ..agents_logic import QAAgent, BugTrackerAgent, UniversalTesterAgent
+from ..agents_logic import QAAgent, BugTrackerAgent, UniversalTesterAgent, TargetDetectorAgent
 
 def simulate_scan(url: str, target_type: str, mode: str) -> dict:
     """Enhanced scan result — provides mode-specific metrics"""
@@ -42,6 +43,13 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
     f = {"critical": 0, "high": 0, "medium": 0, "low": 0, "auto_fixed": 0, "jira_created": 0}
     
     # Run target-specific analysis
+    detector = TargetDetectorAgent()
+    detected_type = detector.detect(url)
+    
+    # Override target_type if it was generic or not provided
+    if target_type in ["website", "unknown"] and detected_type != "website":
+        target_type = detected_type
+
     uta = UniversalTesterAgent(target_type)
     f["target_metrics"] = uta.run_analysis(url, mode)
     
@@ -73,9 +81,16 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
         f["high"] = random.randint(1, 5)
         f["medium"] = random.randint(10, 20)
         f["low"] = random.randint(20, 40)
+        # Add QA stats to full mode
+        qa = QAAgent().run_suite(url, target_type)
+        f["qa_stats"] = qa
     else: # ui, accessibility
         f["medium"] = random.randint(1, 4)
         f["low"] = random.randint(5, 15)
+
+    # Always ensure some QA context for the reports if not explicitly run
+    if "qa_stats" not in f and mode != "bug_tracker":
+        f["qa_stats"] = QAAgent().run_suite(url, target_type)
 
     if mode not in ["bug_tracker"]:
          f["auto_fixed"] = random.randint(1, 5) if f["medium"] > 0 else 0
@@ -110,7 +125,10 @@ def start_scan(req: ScanRequest, db: Session = Depends(get_db),
     db.add(scan)
     db.commit(); db.refresh(scan)
     # Auto-generate report
-    _generate_report(scan, db)
+    report = _generate_report(scan, db)
+    
+    # Manually attach report_id for ScanResponse
+    scan.report_id = report.id
     return scan
 
 def _generate_report(scan: Scan, db: Session):
@@ -118,7 +136,8 @@ def _generate_report(scan: Scan, db: Session):
     pdf_path = generate_pdf(scan)
     csv_path = generate_csv(scan)
     report = Report(scan_id=scan.id, pdf_path=pdf_path, csv_path=csv_path)
-    db.add(report); db.commit()
+    db.add(report); db.commit(); db.refresh(report)
+    return report
 
 @router.get("/", response_model=List[ScanResponse])
 def list_scans(db: Session = Depends(get_db), user: User = Depends(get_current_user)):

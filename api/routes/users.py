@@ -56,13 +56,16 @@ def toggle_status(user_id: str, db: Session = Depends(get_db), _: User = Depends
 @router.patch("/{user_id}/role", response_model=UserOut)
 def update_role(user_id: str, data: RoleUpdate, db: Session = Depends(get_db),
                 _: User = Depends(require_admin)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user: raise HTTPException(404, "User not found")
-    if data.role not in ["admin", "user"]:
-        raise HTTPException(400, "Role must be 'admin' or 'user'")
-    user.role = data.role
-    db.commit(); db.refresh(user)
-    return user
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user: raise HTTPException(404, "User not found")
+        user.role = data.role
+        db.commit(); db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        print(f"[ROLE UPDATE ERROR] {e}", flush=True)
+        raise HTTPException(status_code=500, detail=f"Role assignment failure: {str(e)}")
 
 @router.delete("/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db), _: User = Depends(require_admin)):

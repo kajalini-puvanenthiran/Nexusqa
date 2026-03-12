@@ -6,7 +6,7 @@ import { seo } from "../api/client";
 
 function LiveSEOAudit() {
     const { notify } = useNotify();
-    const [url, setUrl] = useState("https://mindvisionit.com");
+    const [url, setUrl] = useState("");
     const [task, setTask] = useState(null);
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -128,9 +128,35 @@ function LiveSEOAudit() {
 }
 
 export default function SEOSection() {
+    const [marked, setMarked] = useState(() => localStorage.getItem('nexus_marked_seo') === 'true');
     return (
         <div>
-            <SectionTitle icon="◎" title="SEO ENGINE + AUTO-REPAIR" sub="Full technical SEO audit with autonomous fix application" color={C.green} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <SectionTitle icon="◎" title="SEO ENGINE + AUTO-REPAIR" sub="Full technical SEO audit with autonomous fix application" color={C.green} />
+                <div 
+                    onClick={() => {
+                        const newState = !marked;
+                        setMarked(newState);
+                        localStorage.setItem('nexus_marked_seo', newState);
+                    }}
+                    style={{ 
+                        padding: "6px 14px", 
+                        borderRadius: 20, 
+                        background: marked ? `${C.green}22` : "rgba(255,255,255,0.03)", 
+                        border: `1px solid ${marked ? C.green : C.border}`, 
+                        color: marked ? C.green : C.muted, 
+                        fontSize: 9, 
+                        fontWeight: 800, 
+                        cursor: "pointer", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: 6,
+                        transition: "all 0.3s"
+                    }}
+                >
+                    {marked ? "✓ MARKED COMPLETE" : "☐ MARK AS COMPLETE"}
+                </div>
+            </div>
             <LiveSEOAudit />
 
             <Card color={C.green} style={{ marginBottom: 16 }}>

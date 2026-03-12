@@ -58,9 +58,46 @@ def seed_db():
         # Seed System Config
         conf = db.query(SystemConfig).first()
         if not conf:
-            print("[SEED] Initializing default system configuration", flush=True)
-            conf = SystemConfig(id=1)
+            print("[SEED] Initializing default system configuration: Clustersco", flush=True)
+            conf = SystemConfig(
+                id=1,
+                company_name="Clustersco",
+                hq_location="Colombo 01, Sri Lanka",
+                timezone="IST / GMT+5:30 (Sri Lanka)",
+                operational_site="Ai Agent",
+                contact_email="kajalini.p@clustersco.com",
+                support_phone="+94 70 440 2829",
+                industry="Enterprise Solutions",
+                theme_settings={
+                    "primary_color": "#00e5ff",
+                    "secondary_color": "#0044ff",
+                    "text_color": "#ffffff",
+                    "icon_color": "#00e5ff",
+                    "font_family": "'Inter', sans-serif",
+                    "button_color": "#00e5ff",
+                    "sidebar_bg": "#070f1a"
+                }
+            )
             db.add(conf)
+        else:
+            # Update existing record to match request
+            conf.company_name = "Clustersco"
+            conf.hq_location = "Colombo, Sri Lanka"
+            conf.timezone = "IST / GMT+5:30 (Sri Lanka)"
+            conf.operational_site = "ERP"
+            conf.contact_email = "contact@clustersco.com"
+            conf.support_phone = "+94 11 123 4567"
+            conf.industry = "Enterprise Solutions"
+            if not conf.theme_settings:
+                conf.theme_settings = {
+                    "primary_color": "#00e5ff",
+                    "secondary_color": "#0044ff",
+                    "text_color": "#ffffff",
+                    "icon_color": "#00e5ff",
+                    "font_family": "'Inter', sans-serif",
+                    "button_color": "#00e5ff",
+                    "sidebar_bg": "#070f1a"
+                }
 
         db.commit()
     except Exception as e:
@@ -79,7 +116,17 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8001",
+        "http://[::1]:3000",
+        "http://[::1]:5173",
+        "http://[::1]:8001",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { C } from "../constants";
 import { SectionTitle, Card, GlowBadge } from "../components/UI";
 
@@ -45,9 +46,35 @@ const LAYERS = [
 ];
 
 export default function ArchitectureSection() {
+    const [marked, setMarked] = useState(() => localStorage.getItem('nexus_marked_arch') === 'true');
     return (
         <div>
-            <SectionTitle icon="⬡" title="SYSTEM ARCHITECTURE" sub="8-Layer autonomous intelligence pipeline" color={C.cyan} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <SectionTitle icon="⬡" title="SYSTEM ARCHITECTURE" sub="8-Layer autonomous intelligence pipeline" color={C.cyan} />
+                <div 
+                    onClick={() => {
+                        const newState = !marked;
+                        setMarked(newState);
+                        localStorage.setItem('nexus_marked_arch', newState);
+                    }}
+                    style={{ 
+                        padding: "6px 14px", 
+                        borderRadius: 20, 
+                        background: marked ? `${C.cyan}22` : "rgba(255,255,255,0.03)", 
+                        border: `1px solid ${marked ? C.cyan : C.border}`, 
+                        color: marked ? C.cyan : C.muted, 
+                        fontSize: 9, 
+                        fontWeight: 800, 
+                        cursor: "pointer", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: 6,
+                        transition: "all 0.3s"
+                    }}
+                >
+                    {marked ? "✓ MARKED COMPLETE" : "☐ MARK AS COMPLETE"}
+                </div>
+            </div>
             {LAYERS.map((layer, i) => (
                 <Card key={layer.n} color={layer.color} style={{ marginBottom: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
