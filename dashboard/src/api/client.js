@@ -42,12 +42,13 @@ export const scans = {
 };
 
 export const seo = {
-    audit: (url) => client.post(`/seo/audit?url=${url}`),
+    audit: (d) => client.post("/seo/audit", d),
     status: (id) => client.get(`/seo/status/${id}`),
 };
 
 export const debug = {
     run: (log, path) => client.post("/debug/run", { error_log: log, codebase_path: path }),
+    tasks: () => client.get("/debug/tasks"),
     status: (id) => client.get(`/debug/status/${id}`),
 };
 

@@ -42,7 +42,7 @@ export function NotificationProvider({ children }) {
                         background: n.type === "error" ? "#ff1744" : (n.type === "success" ? "#00e676" : "#00e5ff"),
                         color: "#000",
                         borderRadius: 8,
-                        fontFamily: "'Inter', sans-serif",
+                        fontFamily: "sans-serif",
                         fontSize: 12,
                         fontWeight: 700,
                         boxShadow: "0 8px 32px rgba(0,0,0,0.4)",

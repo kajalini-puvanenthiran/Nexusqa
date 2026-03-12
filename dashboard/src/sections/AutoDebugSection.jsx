@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { C } from "../constants";
 import { SectionTitle, Card, CodeBlock, GlowBadge } from "../components/UI";
 import { useNotify } from "../context/NotificationContext";
+import { debug } from "../api/client";
 
 const FUSION_HEAL_STEPS = [
     { s: "INTERCEPT", desc: "Sentinel socket caught runtime exception" },
@@ -14,14 +15,30 @@ const FUSION_HEAL_STEPS = [
 export default function AutoDebugSection() {
     const { notify } = useNotify();
     const [track, setTrack] = useState("websites");
+    const [url, setUrl] = useState("");
+    const [creds, setCreds] = useState({ user: "", pass: "" });
+    const [showCreds, setShowCreds] = useState(false);
     const [healing, setHealing] = useState(false);
     const [step, setStep] = useState(-1);
     const [telemetry, setTelemetry] = useState([]);
+    const [history, setHistory] = useState([]);
+
+    const loadHistory = () => debug.tasks().then(r => setHistory(r.data)).catch(() => {});
+    useEffect(() => {
+        loadHistory();
+        const interval = setInterval(loadHistory, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     const startHealing = () => {
+        if (!url) {
+            notify("Identify target coordinate (URL) before engaging sentinel.", "error");
+            return;
+        }
         setHealing(true);
         setStep(0);
-        setTelemetry([`[${new Date().toLocaleTimeString()}] SENTINEL_READY: Standing by for intercept`]);
+        const authStatus = creds.user ? `[AUTH: ${creds.user.toUpperCase()}] ` : "";
+        setTelemetry([`[${new Date().toLocaleTimeString()}] ${authStatus}SENTINEL_READY: Standing by for intercept on ${url}`]);
         notify("LOCKING COORDINATES: Autonomous healing sequence engaged.", "success");
     };
 
@@ -59,7 +76,7 @@ export default function AutoDebugSection() {
             <Card color={C.orange} style={{ marginBottom: 24, padding: "30px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
                     <div>
-                        <div style={{ fontSize: 11, color: C.orange, fontWeight: 900, fontFamily: "'Orbitron', sans-serif", letterSpacing: 1.5 }}>SENTINEL AUTO-DEEP-FIX ENGINE</div>
+                        <div style={{ fontSize: 11, color: C.orange, fontWeight: 900, fontFamily: "sans-serif", letterSpacing: 1.5 }}>SENTINEL AUTO-DEEP-FIX ENGINE</div>
                         <div style={{ fontSize: 9, color: C.muted, marginTop: 4 }}>Neural Trace v5.0 • Real-time self-healing coordinate sync</div>
                     </div>
                     {!healing ? (
@@ -69,6 +86,42 @@ export default function AutoDebugSection() {
                             <div className="pulse" style={{ width: 8, height: 8, background: C.green, borderRadius: "50%" }} />
                             <span style={{ fontSize: 10, color: C.green, fontWeight: 900 }}>SENTINEL_OK_ACTIVE</span>
                             <button onClick={() => { setHealing(false); setStep(-1); setTelemetry([]); }} style={{ padding: "4px 10px", background: "transparent", border: `1px solid ${C.border}`, color: C.muted, fontSize: 8, borderRadius: 4, cursor: "pointer" }}>CANCEL</button>
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ display: "grid", gap: 16, marginBottom: 24, padding: "16px", background: "rgba(0,0,0,0.1)", borderRadius: 8, border: `1px dashed ${C.orange}33` }}>
+                    <div style={{ display: "flex", gap: 12 }}>
+                        <input
+                            placeholder="TARGET URL TO INTERCEPT & FIX..."
+                            value={url}
+                            onChange={e => setUrl(e.target.value)}
+                            style={{ flex: 1, background: "rgba(255,255,255,0.03)", border: `1px solid ${C.border}`, color: C.text, padding: "10px 14px", borderRadius: 6, fontSize: 11, outline: "none" }}
+                        />
+                        <button
+                            onClick={() => setShowCreds(!showCreds)}
+                            style={{ padding: "0 14px", background: "rgba(255,255,255,0.05)", border: `1px solid ${showCreds ? C.orange : C.border}`, color: showCreds ? C.orange : C.muted, borderRadius: 6, fontSize: 9, fontWeight: 900, cursor: "pointer", transition: "0.3s" }}
+                        >
+                            {showCreds ? "✕ CLOSE" : "+ CREDS"}
+                        </button>
+                    </div>
+
+                    {showCreds && (
+                        <div style={{ display: "flex", gap: 12, animation: "fadeIn 0.3s ease-out" }}>
+                            <div style={{ fontSize: 9, color: C.orange, fontWeight: 900, width: 80, display: "flex", alignItems: "center" }}>SECURE AUTH:</div>
+                            <input
+                                placeholder="USERNAME"
+                                value={creds.user}
+                                onChange={e => setCreds({ ...creds, user: e.target.value })}
+                                style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                            />
+                            <input
+                                type="password"
+                                placeholder="PASSWORD"
+                                value={creds.pass}
+                                onChange={e => setCreds({ ...creds, pass: e.target.value })}
+                                style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                            />
                         </div>
                     )}
                 </div>
@@ -144,43 +197,45 @@ const total = items
                 )}
             </Card>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
-                {[
-                    {
-                        title: "Test Error Types Handled", color: C.orange, items: [
-                            "Selector not found (DOM change) → AI re-discovers element",
-                            "Network timeout → Adds retry logic + wait conditions",
-                            "JS TypeError / ReferenceError → Traces to source line",
-                            "React hydration mismatch → Flags SSR/CSR inconsistency",
-                            "Auth token expired during test → Auto-refreshes session",
-                            "Race condition in async tests → Adds proper await patterns",
-                            "Viewport-dependent failures → Detects responsive breakage",
-                        ]
-                    },
-                    {
-                        title: "Code Debug Capabilities", color: C.red, items: [
-                            "Parses Python / JS / TS / Java stack traces",
-                            "Identifies exact file, line, and function of error",
-                            "Checks git blame for who introduced the bug",
-                            "Correlates with recent commits / PRs",
-                            "Suggests minimal diff to fix the error",
-                            "Generates unit test to prevent regression",
-                            "Posts fix as GitHub PR or JIRA comment automatically",
-                        ]
-                    },
-                ].map(box => (
-                    <Card key={box.title} color={box.color}>
-                        <div style={{ fontFamily: "monospace", fontSize: 10, color: box.color, marginBottom: 12, letterSpacing: "0.5px", fontWeight: 700 }}>{box.title}</div>
-                        {box.items.map((item, i) => (
-                            <div key={i} style={{ fontSize: 10, color: C.text, marginBottom: 6, display: "flex", gap: 6, fontFamily: "monospace", lineHeight: 1.5 }}>
-                                <span style={{ color: box.color, flexShrink: 0 }}>▸</span> {item}
-                            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        {[
+                            {
+                                title: "Test Error Types Handled", color: C.orange, items: [
+                                    "Selector not found (DOM change) → AI re-discovers element",
+                                    "Network timeout → Adds retry logic + wait conditions",
+                                    "JS TypeError / ReferenceError → Traces to source line",
+                                    "React hydration mismatch → Flags SSR/CSR inconsistency",
+                                    "Auth token expired during test → Auto-refreshes session",
+                                    "Race condition in async tests → Adds proper await patterns",
+                                    "Viewport-dependent failures → Detects responsive breakage",
+                                ]
+                            },
+                            {
+                                title: "Code Debug Capabilities", color: C.red, items: [
+                                    "Parses Python / JS / TS / Java stack traces",
+                                    "Identifies exact file, line, and function of error",
+                                    "Checks git blame for who introduced the bug",
+                                    "Correlates with recent commits / PRs",
+                                    "Suggests minimal diff to fix the error",
+                                    "Generates unit test to prevent regression",
+                                    "Posts fix as GitHub PR or JIRA comment automatically",
+                                ]
+                            },
+                        ].map(box => (
+                            <Card key={box.title} color={box.color}>
+                                <div style={{ fontFamily: "monospace", fontSize: 10, color: box.color, marginBottom: 12, letterSpacing: "0.5px", fontWeight: 700 }}>{box.title}</div>
+                                {box.items.map((item, i) => (
+                                    <div key={i} style={{ fontSize: 10, color: C.text, marginBottom: 6, display: "flex", gap: 6, fontFamily: "monospace", lineHeight: 1.5 }}>
+                                        <span style={{ color: box.color, flexShrink: 0 }}>▸</span> {item}
+                                    </div>
+                                ))}
+                            </Card>
                         ))}
-                    </Card>
-                ))}
-            </div>
+                    </div>
 
-            <CodeBlock lang="python // sentinel_fusion_logic.py" color={C.orange} code={`class SentinelFusionBridge:
+                    <CodeBlock lang="python // sentinel_fusion_logic.py" color={C.orange} code={`class SentinelFusionBridge:
     async def bridge_and_fix(self, issue_id: str, context: dict) -> FusionResult:
         # Step 1: Neural Intercept from Tracker
         trace = await SentinelOracle.extract_neural_trace(issue_id)
@@ -202,6 +257,36 @@ const total = items
                 
         # Escalation Loop if confidence is low
         return FusionResult(status="ESCALATED_TO_HUMAN")`} />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    <Card color={C.cyan} style={{ flex: 1 }}>
+                        <div style={{ fontSize: 10, color: C.cyan, fontWeight: 900, marginBottom: 16, letterSpacing: 1 }}>◈ AUTONOMOUS SENTINEL HISTORY</div>
+                        {history.length === 0 ? (
+                            <div style={{ fontSize: 10, color: C.muted, textAlign: "center", padding: 40 }}>Monitoring background fusion threads...</div>
+                        ) : history.map(h => (
+                            <div key={h.id} style={{ borderBottom: `1px solid ${C.border}44`, paddingBottom: 12, marginBottom: 12 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                    <span style={{ fontSize: 9, color: C.heading, fontWeight: 800 }}>{h.id}</span>
+                                    <GlowBadge color={h.status === 'completed' ? C.green : C.cyan} small>{h.status.toUpperCase()}</GlowBadge>
+                                </div>
+                                <div style={{ fontSize: 9, color: C.muted, fontFamily: "monospace", fontStyle: "italic", marginBottom: 8 }}>
+                                    {h.logs[h.logs.length - 1]}
+                                </div>
+                                <div style={{ height: 4, background: "rgba(255,160,0,0.05)", borderRadius: 2 }}>
+                                    <div style={{ width: `${h.progress}%`, height: "100%", background: h.status === 'completed' ? C.green : C.orange, transition: "0.5s" }} />
+                                </div>
+                            </div>
+                        ))}
+                    </Card>
+
+                    <Card style={{ padding: 16, background: "rgba(0,184,212,0.02)" }}>
+                        <div style={{ fontSize: 9, color: C.muted, lineHeight: 1.5, fontStyle: "italic" }}>
+                            "Automated sentinel activity is triggered by high-priority JIRA tickets identified during autonomous agent scans."
+                        </div>
+                    </Card>
+                </div>
+            </div>
         </div>
     );
 }

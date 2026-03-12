@@ -36,6 +36,7 @@ class Scan(Base):
     mode          = Column(String(50), default="full")
     status        = Column(String(30), default="pending")   # pending|running|done|failed
     findings      = Column(JSON, default=dict)
+    credentials   = Column(JSON, nullable=True)
     summary       = Column(Text, nullable=True)
     score         = Column(Integer, default=0)
     created_at    = Column(DateTime, default=datetime.utcnow)

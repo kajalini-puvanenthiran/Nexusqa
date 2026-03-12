@@ -6,6 +6,13 @@ import { useNotify } from "../context/NotificationContext";
 import client, { reports, scans, users, settings, search } from "../api/client";
 import { C, NAV } from "../constants";
 import { GlowBadge, SectionTitle, Card } from "../components/UI";
+import * as Lucide from "lucide-react";
+
+const Icon = ({ name, color, size = 16, style = {} }) => {
+    const LucideIcon = Lucide[name];
+    if (!LucideIcon) return null;
+    return <LucideIcon color={color} size={size} style={style} />;
+};
 // ─────────── Global Search Bar ───────────────────────────────────
 function GlobalSearch({ setActive, setPreviewItem }) {
     const [q, setQ] = useState("");
@@ -37,7 +44,7 @@ function GlobalSearch({ setActive, setPreviewItem }) {
     return (
         <div style={{ position: "relative", flex: 1, maxWidth: 400, margin: "0 40px" }} ref={searchRef}>
             <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12 }}>🔍</span>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12 }}></span>
                 <input
                     value={q}
                     onChange={(e) => performSearch(e.target.value)}
@@ -95,7 +102,9 @@ function SidebarItem({ item, active, setActive, expanded, toggleExpand, depth = 
                     textAlign: "left", transition: "all 0.2s", position: "relative"
                 }}
             >
-                <span style={{ fontSize: 14, opacity: isActive ? 1 : 0.6 }}>{item.icon}</span>
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 18, opacity: isActive ? 1 : 0.6 }}>
+                    <Icon name={item.icon} color={active === item.id ? C.cyan : (isActive ? C.heading : C.muted)} size={14} />
+                </span>
                 <span style={{ flex: 1, letterSpacing: depth === 0 ? "0.3px" : "0" }}>{item.label}</span>
                 {hasSub && (
                     <span style={{ fontSize: 8, transition: "transform 0.3s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5 }}>▼</span>
@@ -147,9 +156,9 @@ function Layout({ active, setActive, children, user, logout, setPreviewItem }) {
             {/* Top bar */}
             <div style={{ borderBottom: `1px solid ${C.border}`, padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: C.panel, position: "sticky", top: 0, zIndex: 100 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg,#00e5ff,#0044ff)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: 13, color: "#000" }}>NQ</div>
+                    <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg,#00e5ff,#0044ff)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", fontWeight: 900, fontSize: 13, color: "#000" }}>NQ</div>
                     <div>
-                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: 16, color: C.heading, letterSpacing: "1.5px" }}>NEXUS<span style={{ color: C.cyan }}>QA</span></div>
+                        <div style={{ fontFamily: "sans-serif", fontWeight: 900, fontSize: 16, color: C.heading, letterSpacing: "1.5px" }}>NEXUS<span style={{ color: C.cyan }}>QA</span></div>
                         <div style={{ fontSize: 9, color: C.muted, fontWeight: 500 }}>Autonomous Intelligence</div>
                     </div>
                 </div>
@@ -293,13 +302,13 @@ function ScanRunner() {
 
     return (
         <div>
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 18, fontWeight: 900, color: C.heading, marginBottom: 24 }}>
+            <div style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 900, color: C.heading, marginBottom: 24 }}>
                 RUN <span style={{ color: C.cyan }}>NEW SCAN</span>
             </div>
             <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderLeft: `2px solid ${C.cyan}`, borderRadius: 6, padding: 24, marginBottom: 20 }}>
                 <label style={{ display: "block", fontSize: 10, color: C.muted, letterSpacing: "1px", marginBottom: 8 }}>TARGET TYPE</label>
                 <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                    {[{ id: "website", label: "🌐 WEBSITE" }, { id: "software", label: "💿 SOFTWARE" }, { id: "mobile", label: "📱 MOBILE APP" }, { id: "pos", label: "🏧 POS SYSTEM" }].map(t => (
+                    {[{ id: "website", label: "🌐 WEBSITE" }, { id: "software", label: "💿 SOFTWARE" }, { id: "mobile", label: "📱 MOBILE APP" }].map(t => (
                         <button key={t.id} onClick={() => setTargetType(t.id)} style={{
                             padding: "8px 16px", borderRadius: 4, fontFamily: "monospace", fontSize: 10, cursor: "pointer",
                             background: targetType === t.id ? `${C.cyan}22` : "transparent",
@@ -340,7 +349,7 @@ function ScanRunner() {
                 </div>
                 <button onClick={run} disabled={running || !url} style={{
                     padding: "12px 28px", background: `linear-gradient(135deg,${C.cyan},#0044ff)`,
-                    border: "none", borderRadius: 8, color: "#000", fontFamily: "'Orbitron', sans-serif",
+                    border: "none", borderRadius: 8, color: "#000", fontFamily: "sans-serif",
                     fontSize: 11, fontWeight: 900, cursor: running ? "not-allowed" : "pointer", letterSpacing: "1.5px",
                     opacity: running ? 0.7 : 1, transition: "transform 0.2s"
                 }}>{running ? "⟳ SCANNING..." : "▶ LAUNCH SCAN"}</button>
@@ -366,7 +375,7 @@ function ScanResult({ data }) {
     return (
         <div style={{ background: C.panel, border: `1px solid ${C.green}33`, borderLeft: `2px solid ${C.green}`, borderRadius: 6, padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div style={{ fontFamily: "'Orbitron',monospace", fontSize: 13, color: C.green }}>
+                <div style={{ fontFamily: "monospace", fontSize: 13, color: C.green }}>
                     {data.mode === 'full' ? 'FULL QA SCAN' : data.mode?.toUpperCase() + ' SCAN'} COMPLETE — NEXUS REPORT
                 </div>
                 <div style={{ fontSize: 9, color: C.cyan, background: `${C.cyan}11`, padding: "4px 10px", borderRadius: 4, fontFamily: "monospace", letterSpacing: "1px" }}>TARGET: {data.target_type?.toUpperCase()}</div>
@@ -374,7 +383,7 @@ function ScanResult({ data }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
                 {[["Critical", findings.critical || 0, C.red], ["High", findings.high || 0, C.orange], ["Medium", findings.medium || 0, C.gold], ["Low", findings.low || 0, C.green]].map(([l, v, c]) => (
                     <div key={l} style={{ background: C.inputBg, border: `1px solid ${c}33`, borderRadius: 8, padding: 14, textAlign: "center" }}>
-                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: c }}>{v}</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 22, fontWeight: 900, color: c }}>{v}</div>
                         <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 4 }}>{l.toUpperCase()}</div>
                     </div>
                 ))}
@@ -466,8 +475,8 @@ function ReportsList() {
 
     return (
         <div>
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 20, fontWeight: 900, color: C.heading, marginBottom: 28, display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 24 }}>📊</span> REPORT <span style={{ color: C.gold }}>HUB</span>
+            <div style={{ fontFamily: "sans-serif", fontSize: 20, fontWeight: 900, color: C.heading, marginBottom: 28, display: "flex", alignItems: "center", gap: 12 }}>
+                REPORT <span style={{ color: C.gold }}>HUB</span>
             </div>
 
             {loading ? (
@@ -578,8 +587,8 @@ function NotificationHub() {
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
-                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 20, fontWeight: 900, color: C.heading }}>
-                    <span style={{ fontSize: 24, marginRight: 12 }}>🔔</span> EVENT <span style={{ color: C.cyan }}>LOG ARCHIVE</span>
+                <div style={{ fontFamily: "sans-serif", fontSize: 20, fontWeight: 900, color: C.heading }}>
+                    EVENT <span style={{ color: C.cyan }}>LOG ARCHIVE</span>
                 </div>
                 <button onClick={clearNotifications} style={{ padding: "10px 20px", background: `${C.red}11`, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 8, fontSize: 10, fontWeight: 800, cursor: "pointer", letterSpacing: "1px" }}>PURGE ALL EVENT DATA</button>
             </div>
@@ -730,7 +739,7 @@ function UserManagement() {
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 20, fontWeight: 900, color: C.heading }}>USER <span style={{ color: C.gold }}>MANAGEMENT</span></div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 20, fontWeight: 900, color: C.heading }}>USER <span style={{ color: C.gold }}>MANAGEMENT</span></div>
                 <button onClick={() => { resetForm(); setShowModal(true); }} style={{ padding: "10px 24px", background: C.cyan, color: "#000", border: "none", borderRadius: 8, fontWeight: 900, fontSize: 11, cursor: "pointer", letterSpacing: "0.5px" }}>+ NEW USER</button>
             </div>
 
@@ -774,7 +783,7 @@ function UserManagement() {
                 <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
                     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: 36, width: 480, boxShadow: "0 25px 50px rgba(0,0,0,0.5)" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 16, color: C.heading, fontWeight: 900, letterSpacing: "1px" }}>{isEditing ? 'RECONFIGURE OPERATIVE' : 'ENLIST NEW OPERATIVE'}</div>
+                            <div style={{ fontFamily: "sans-serif", fontSize: 16, color: C.heading, fontWeight: 900, letterSpacing: "1px" }}>{isEditing ? 'RECONFIGURE OPERATIVE' : 'ENLIST NEW OPERATIVE'}</div>
                             <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>×</button>
                         </div>
                         <form onSubmit={handleCreateUser}>
@@ -813,14 +822,14 @@ function UserManagement() {
 function Profile({ user }) {
     return (
         <div>
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 18, fontWeight: 900, color: C.heading, marginBottom: 24 }}>MY <span style={{ color: C.cyan }}>PROFILE</span></div>
+            <div style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 900, color: C.heading, marginBottom: 24 }}>MY <span style={{ color: C.cyan }}>PROFILE</span></div>
             <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderLeft: `2px solid ${C.cyan}`, borderRadius: 12, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 32 }}>
                     <div style={{ width: 80, height: 80, borderRadius: "50%", border: `3px solid ${C.cyan}`, background: C.inputBg, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={C.cyan} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                     </div>
                     <div>
-                        <div style={{ fontSize: 22, fontWeight: 900, color: C.heading, fontFamily: "'Orbitron', sans-serif" }}>{user?.full_name}</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: C.heading, fontFamily: "sans-serif" }}>{user?.full_name}</div>
                         <div style={{ fontSize: 11, color: C.cyan, fontWeight: 700, letterSpacing: "1px", marginTop: 4 }}>{user?.role?.toUpperCase()} — VERIFIED AGENT</div>
                     </div>
                 </div>
@@ -901,7 +910,7 @@ function EditProfile({ user }) {
     return (
         <div style={{ paddingBottom: 40 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
-                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, color: C.heading }}>{firstName} {lastName}</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 22, fontWeight: 900, color: C.heading }}>{firstName} {lastName}</div>
                 {msg.text && (
                     <div style={{
                         fontSize: 10, padding: "10px 18px", borderRadius: 8, fontWeight: 800,
@@ -967,7 +976,7 @@ function EditProfile({ user }) {
                 {/* Right: Security */}
                 <div>
                     <form onSubmit={handlePasswordSubmit} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: 32, marginBottom: 24 }}>
-                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, color: C.heading, fontWeight: 700, marginBottom: 24 }}>CHANGE PIN/PASSWORD</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 13, color: C.heading, fontWeight: 700, marginBottom: 24 }}>CHANGE PIN/PASSWORD</div>
 
                         <div style={{ marginBottom: 20 }}>
                             <label style={labelStyle}>{req}Old password</label>
@@ -1111,7 +1120,7 @@ function SettingsTheme() {
         secondary_color: '#0044ff',
         text_color: '#ffffff',
         icon_color: '#00e5ff',
-        font_family: "'Inter', sans-serif",
+        font_family: "sans-serif",
         button_color: '#00e5ff',
         sidebar_bg: '#070f1a'
     });
@@ -1177,8 +1186,8 @@ function SettingsTheme() {
                         <div>
                             <label style={{ display: "block", fontSize: 10, color: C.muted, fontWeight: 800, marginBottom: 10, letterSpacing: 0.5 }}>TYPOGRAPHY FAMILY</label>
                             <select value={style.font_family} onChange={e => setStyle({ ...style, font_family: e.target.value })} style={{ width: "100%", padding: "14px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 10, outline: "none", fontSize: 13, fontWeight: 600 }}>
-                                <option value="'Inter', sans-serif">Inter (Modern & Clean)</option>
-                                <option value="'Orbitron', sans-serif">Orbitron (Cybertech Specialization)</option>
+                                <option value="sans-serif">Inter (Modern & Clean)</option>
+                                <option value="sans-serif">sans-serif (Cybertech Specialization)</option>
                                 <option value="'Roboto', sans-serif">Roboto (Professional Standard)</option>
                                 <option value="'Space Mono', monospace">Space Mono (Diagnostic Terminal)</option>
                                 <option value="'Courier New', monospace">Vintage System Core</option>
@@ -1897,6 +1906,8 @@ export default function DashboardPage() {
 
 function UniversalAgentTerminal({ setActive }) {
     const [url, setUrl] = useState("");
+    const [creds, setCreds] = useState({ user: "", pass: "" });
+    const [showCreds, setShowCreds] = useState(false);
     const [detecting, setDetecting] = useState(false);
     const { notify } = useNotify();
 
@@ -1905,7 +1916,12 @@ function UniversalAgentTerminal({ setActive }) {
         setDetecting(true);
         notify("Analyzing cross-platform coordination...", "info");
         try {
-            const res = await client.post("/scans/", { url, target_type: "unknown", mode: "full" });
+            const res = await client.post("/scans/", { 
+                url, 
+                target_type: "unknown", 
+                mode: "full",
+                credentials: creds.user ? creds : null
+            });
             const type = res.data.target_type;
             notify(`Autonomous Detection: ${type.toUpperCase()} architecture identified.`, "success");
 
@@ -1929,21 +1945,48 @@ function UniversalAgentTerminal({ setActive }) {
                 <div style={{ fontSize: 24 }}></div>
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 10, color: C.cyan, fontWeight: 900, letterSpacing: 1.5, marginBottom: 6 }}>UNIVERSAL AUTONOMOUS TERMINAL</div>
-                    <div style={{ display: "flex", gap: 10 }}>
-                        <input
-                            placeholder="DROP ANY URL HERE FOR INSTANT SYSTEM AUDIT..."
-                            value={url}
-                            onChange={e => setUrl(e.target.value)}
-                            onKeyDown={e => e.key === "Enter" && handleLaunch()}
-                            style={{ flex: 1, background: "rgba(0,0,0,0.2)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "10px 16px", color: C.text, fontSize: 12, outline: "none", fontFamily: "monospace" }}
-                        />
-                        <button
-                            onClick={handleLaunch}
-                            disabled={detecting}
-                            style={{ padding: "0 20px", background: C.cyan, color: "#000", border: "none", borderRadius: 6, fontWeight: 900, cursor: "pointer", fontSize: 10, transition: "all 0.3s" }}
-                        >
-                            {detecting ? "IDENTIFYING..." : "LAUNCH AGENT →"}
-                        </button>
+                    <div style={{ display: "grid", gap: 10 }}>
+                        <div style={{ display: "flex", gap: 10 }}>
+                            <input
+                                placeholder="DROP ANY URL HERE FOR INSTANT SYSTEM AUDIT..."
+                                value={url}
+                                onChange={e => setUrl(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && handleLaunch()}
+                                style={{ flex: 1, background: "rgba(0,0,0,0.2)", border: `1px solid ${C.border}`, borderRadius: 6, padding: "10px 16px", color: C.text, fontSize: 12, outline: "none", fontFamily: "monospace" }}
+                            />
+                            <button
+                                onClick={() => setShowCreds(!showCreds)}
+                                style={{ padding: "0 14px", background: "rgba(255,255,255,0.05)", border: `1px solid ${showCreds ? C.cyan : C.border}`, color: showCreds ? C.cyan : C.muted, borderRadius: 6, fontSize: 8, fontWeight: 900, cursor: "pointer", transition: "0.3s" }}
+                            >
+                                {showCreds ? "✕ CLOSE" : "+ CREDS"}
+                            </button>
+                            <button
+                                onClick={handleLaunch}
+                                disabled={detecting}
+                                style={{ padding: "0 20px", background: C.cyan, color: "#000", border: "none", borderRadius: 6, fontWeight: 900, cursor: "pointer", fontSize: 10, transition: "all 0.3s" }}
+                            >
+                                {detecting ? "IDENTIFYING..." : "LAUNCH AGENT →"}
+                            </button>
+                        </div>
+
+                        {showCreds && (
+                            <div style={{ display: "flex", gap: 12, animation: "fadeIn 0.3s ease-out", padding: "10px", background: "rgba(0,0,0,0.2)", borderRadius: 6, border: `1px dashed ${C.cyan}44` }}>
+                                <div style={{ fontSize: 8, color: C.cyan, fontWeight: 900, width: 70, display: "flex", alignItems: "center" }}>SECURE AUTH:</div>
+                                <input
+                                    placeholder="OPERATIVE USERNAME"
+                                    value={creds.user}
+                                    onChange={e => setCreds({ ...creds, user: e.target.value })}
+                                    style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 10, outline: "none" }}
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="SECURE PASSWORD"
+                                    value={creds.pass}
+                                    onChange={e => setCreds({ ...creds, pass: e.target.value })}
+                                    style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 10, outline: "none" }}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

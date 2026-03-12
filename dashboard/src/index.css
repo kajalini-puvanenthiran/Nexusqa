@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
   /* Global Core Theme Variables */
@@ -15,7 +15,7 @@
   --nexus-secondary-color: #0044ff;
   --nexus-text-color: #ffffff;
   --nexus-icon-color: #00e5ff;
-  --nexus-font-family: 'Inter', sans-serif;
+  --nexus-font-family: sans-serif;
   --nexus-button-color: #00e5ff;
   --nexus-sidebar-bg: #070f1a;
 }

@@ -50,11 +50,11 @@ function AutomatedTicketHub() {
 
     useEffect(() => { load(); }, []);
     const load = () => jira.list().then(r => {
-        const normalized = r.data.map((t, idx) => ({ 
-            ...PROFESSIONAL_SAMPLE, 
-            ...t, 
-            fusionId: `SENTINEL-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-            healing_status: idx % 3 === 0 ? "HEALED" : "STANDBY"
+        // Use backend data directly, providing defaults only if missing
+        const normalized = r.data.map((t) => ({ 
+            ...t,
+            fusionId: t.fusion_id || "SYS_STATIC",
+            healing_status: t.healing_status || "STANDBY"
         }));
         setTickets(normalized);
     }).catch(() => setTickets([]));
@@ -119,7 +119,7 @@ function AutomatedTicketHub() {
                 <Card color={C.red} style={{ padding: "24px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                         <div>
-                            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, color: C.heading, fontWeight: 900, letterSpacing: 1 }}>PROFESSIONAL JIRA PIPELINE</div>
+                            <div style={{ fontFamily: "sans-serif", fontSize: 13, color: C.heading, fontWeight: 900, letterSpacing: 1 }}>PROFESSIONAL JIRA PIPELINE</div>
                             <div style={{ fontSize: 9, color: C.muted, marginTop: 4 }}>Neural Classifier v4.2 active • Real-time coordinate sync</div>
                         </div>
                         <button onClick={handleSync} disabled={syncing} style={{ padding: "12px 24px", background: C.red, color: "#fff", border: "none", borderRadius: 10, fontFamily: C.font, fontSize: 11, cursor: syncing ? "not-allowed" : "pointer", fontWeight: 900, letterSpacing: "1px", boxShadow: `0 4px 15px ${C.red}33`, transition: "0.3s" }}>
@@ -165,8 +165,18 @@ function AutomatedTicketHub() {
                                         </td>
                                         <td style={{ padding: 14 }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                                <div style={{ width: 6, height: 6, borderRadius: "50%", background: t.healing_status === "HEALED" ? C.green : (t.healing_status === "ACTIVE" ? C.cyan : C.border) }} />
-                                                <span style={{ fontSize: 9, color: t.healing_status === "HEALED" ? C.green : C.muted, fontWeight: 800 }}>{t.healing_status || "PENDING"}</span>
+                                                <div style={{ 
+                                                    width: 6, height: 6, borderRadius: "50%", 
+                                                    background: t.healing_status === "HEALED" ? C.green : 
+                                                               (t.healing_status === "QUEUED" || t.healing_status === "FIXING" ? C.cyan : C.border),
+                                                    animation: t.healing_status === "QUEUED" || t.healing_status === "FIXING" ? "pulse 1.5s infinite" : "none"
+                                                }} />
+                                                <span style={{ 
+                                                    fontSize: 9, 
+                                                    color: t.healing_status === "HEALED" ? C.green : 
+                                                           (t.healing_status === "QUEUED" || t.healing_status === "FIXING" ? C.cyan : C.muted), 
+                                                    fontWeight: 800 
+                                                }}>{t.healing_status || "PENDING"}</span>
                                             </div>
                                         </td>
                                         <td style={{ padding: 14, textAlign: "right" }}>
@@ -186,7 +196,7 @@ function AutomatedTicketHub() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, borderBottom: `1px solid ${C.border}44`, paddingBottom: 16 }}>
                         <div>
                             <div style={{ fontSize: 8, color: C.muted, fontWeight: 900, marginBottom: 4 }}>COORDINATE SYSTEM • {selectedTicket.fusionId}</div>
-                            <div style={{ fontSize: 14, fontWeight: 900, color: C.red, fontFamily: "'Orbitron', sans-serif" }}>{selectedTicket.id}</div>
+                            <div style={{ fontSize: 14, fontWeight: 900, color: C.red, fontFamily: "sans-serif" }}>{selectedTicket.id}</div>
                         </div>
                         <button onClick={() => setSelectedId(null)} style={{ padding: "6px 12px", background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 10 }}>CLOSE [ESC]</button>
                     </div>
@@ -248,10 +258,20 @@ function AutomatedTicketHub() {
                                 </div>
                             </div>
 
+                            <div style={{ borderTop: `1px solid ${C.border}33`, paddingTop: 16, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                                <div>
+                                    <div style={{ fontSize: 8, color: C.muted, fontWeight: 900 }}>DIGITAL SIGNATURE [AUDIT]</div>
+                                    <div style={{ fontSize: 11, color: C.heading, fontFamily: "'Brush Script MT', cursive", marginTop: 4 }}>Nexus Intelligence Sentinel</div>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: 8, color: C.muted, fontWeight: 900 }}>SECURITY CLEARANCE</div>
+                                    <div style={{ fontSize: 9, color: C.green, fontWeight: 800, marginTop: 4 }}>✓ AUTHENTICATED & VERIFIED</div>
+                                </div>
+                            </div>
+
                             {syncError ? (
-                                <button style={{ width: "100%", padding: 14, background: C.red, color: "#fff", border: "none", borderRadius: 10, fontSize: 11, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: `0 4px 15px ${C.red}44` }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff", border: `2px solid ${C.red}` }} />
-                                    SYNC FAILED
+                                <button onClick={handleSync} style={{ width: "100%", padding: 14, background: C.red, color: "#fff", border: "none", borderRadius: 10, fontSize: 11, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: `0 4px 15px ${C.red}44` }}>
+                                    RETRY INTELLIGENCE SYNC
                                 </button>
                             ) : (
                                 <button onClick={() => setIsEditing(true)} style={{ width: "100%", padding: 14, background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 10, fontSize: 11, fontWeight: 900, cursor: "pointer", transition: "all 0.3s", letterSpacing: 1 }}>UPDATE COORDINATES</button>
@@ -325,7 +345,7 @@ export default function JIRASection() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 24 }}>
                 {/* Visual Legend for the Classifier */}
                 <Card color={C.cyan}>
-                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 10, color: C.cyan, marginBottom: 16, fontWeight: 900 }}>◈ NEURAL CLASSIFICATION LOGIC</div>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, color: C.cyan, marginBottom: 16, fontWeight: 900 }}>◈ NEURAL CLASSIFICATION LOGIC</div>
                     {JIRA_ISSUE_TYPES.map(it => (
                         <div key={it.type} style={{ display: "flex", gap: 12, marginBottom: 10, alignItems: "center" }}>
                             <span style={{ fontSize: 16 }}>{it.icon}</span>
@@ -340,7 +360,7 @@ export default function JIRASection() {
 
                 {/* Automation Rules */}
                 <Card color={C.red}>
-                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 10, color: C.red, marginBottom: 16, fontWeight: 900 }}>◈ AUTONOMOUS TICKET RULES</div>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, color: C.red, marginBottom: 16, fontWeight: 900 }}>◈ AUTONOMOUS TICKET RULES</div>
                     <div style={{ display: "grid", gap: 10 }}>
                         {[
                             ["Heuristic Engine", "Scans text for keywords (crash, error, missing) to assign JIRA metadata."],

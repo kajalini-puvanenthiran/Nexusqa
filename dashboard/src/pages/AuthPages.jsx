@@ -5,25 +5,25 @@ import { useAuth } from "../context/AuthContext";
 const S = {
     page: {
         minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "var(--bg, #03070d)", fontFamily: "'Inter', sans-serif"
+        background: "var(--bg, #03070d)", fontFamily: "sans-serif"
     },
     box: {
         width: 420, padding: 40, background: "var(--panel, #070f1a)", border: "1px solid var(--border, #0d2035)",
         borderRadius: 12, boxShadow: "0 10px 40px rgba(0,0,0,0.3)"
     },
     logo: { textAlign: "center", marginBottom: 32 },
-    h1: { fontFamily: "'Orbitron',monospace", fontWeight: 900, fontSize: 28, color: "#fff", margin: 0 },
+    h1: { fontFamily: "sans-serif", fontWeight: 900, fontSize: 28, color: "#fff", margin: 0 },
     sub: { fontSize: 10, color: "#3a6080", letterSpacing: "1px", marginTop: 6 },
     label: { display: "block", fontSize: 11, color: "var(--muted, #3a6080)", fontWeight: 600, letterSpacing: "0.5px", marginBottom: 6 },
     input: {
         width: "100%", padding: "12px 14px", background: "rgba(0,0,0,0.2)", border: "1px solid var(--border, #0d2035)",
-        borderRadius: 8, color: "var(--text, #c0d8f0)", fontSize: 14, fontFamily: "'Inter', sans-serif",
+        borderRadius: 8, color: "var(--text, #c0d8f0)", fontSize: 14, fontFamily: "sans-serif",
         outline: "none", boxSizing: "border-box"
     },
     btn: {
         width: "100%", padding: 13, background: "linear-gradient(135deg,#00e5ff,#0044ff)",
         border: "none", borderRadius: 6, color: "#000", fontSize: 12, fontWeight: 900,
-        fontFamily: "'Orbitron',monospace", letterSpacing: "1px", cursor: "pointer", marginTop: 8
+        fontFamily: "monospace", letterSpacing: "1px", cursor: "pointer", marginTop: 8
     },
     err: { color: "#ff1744", fontSize: 10, fontFamily: "monospace", marginTop: 6 },
     link: { color: "#00e5ff", fontSize: 10, fontFamily: "monospace", textDecoration: "none" },
@@ -120,15 +120,14 @@ export function LoginPage() {
     return (
         <div style={S.page}>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         .social-btn:hover { background: #2c2c2c !important; }
         .continue-btn:hover { opacity: 0.9; }
       `}</style>
             <div style={{ ...S.box, width: 440, padding: "48px 40px", borderRadius: "14px", background: "var(--panel, #171717)", border: "1px solid var(--border, #0d2035)" }}>
 
                 <div style={{ textAlign: "center", marginBottom: 36 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 10, background: "linear-gradient(135deg,#00e5ff,#0044ff)", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: 16, color: "#000", boxShadow: "0 0 20px rgba(0, 229, 255, 0.4)" }}>NQ</div>
-                    <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "8px", letterSpacing: "-0.5px" }}>Welcome to NEXUS</h2>
+                    <div style={{ width: 42, height: 42, borderRadius: 10, background: "linear-gradient(135deg,#00e5ff,#0044ff)", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", fontWeight: 900, fontSize: 16, color: "#000", boxShadow: "0 0 20px rgba(0, 229, 255, 0.4)" }}>NQ</div>
+                    <h2 style={{ fontFamily: "sans-serif", fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "8px", letterSpacing: "-0.5px" }}>Welcome to NEXUS</h2>
                     <p style={{ fontSize: "13px", color: "rgba(192, 216, 240, 0.6)", lineHeight: "1.5", maxWidth: "300px", margin: "0 auto" }}>
                         Access the most advanced autonomous QA & intelligence suite.
                     </p>
@@ -188,7 +187,7 @@ export function LoginPage() {
 
                     {error && <div style={{ ...S.err, textAlign: "center", marginBottom: 12 }}>{error}</div>}
 
-                    <button className="continue-btn" style={{ ...SS.continueBtn, background: "linear-gradient(135deg,#00e5ff,#0044ff)", color: "#000", fontWeight: "900", letterSpacing: "0.5px", fontFamily: "'Orbitron', sans-serif" }} disabled={loading}>
+                    <button className="continue-btn" style={{ ...SS.continueBtn, background: "linear-gradient(135deg,#00e5ff,#0044ff)", color: "#000", fontWeight: "900", letterSpacing: "0.5px", fontFamily: "sans-serif" }} disabled={loading}>
                         {loading ? "AUTHENTICATING..." : (emailStep ? "SIGN IN →" : "CONTINUE")}
                     </button>
                 </form>
@@ -240,7 +239,7 @@ export function RegisterPage() {
         <div style={S.page}>
             <div style={{ ...S.box, textAlign: "center" }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-                <div style={{ color: "#00e676", fontFamily: "'Orbitron',monospace", fontSize: 14 }}>Account Created!</div>
+                <div style={{ color: "#00e676", fontFamily: "monospace", fontSize: 14 }}>Account Created!</div>
                 <div style={{ color: "#3a6080", fontSize: 10, marginTop: 8 }}>Redirecting to login...</div>
             </div>
         </div>
@@ -248,7 +247,7 @@ export function RegisterPage() {
 
     return (
         <div style={S.page}>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap');`}</style>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap');`}</style>
             <div style={S.box}>
                 <div style={S.logo}>
                     <h1 style={S.h1}>CREATE ACCOUNT</h1>
@@ -293,7 +292,7 @@ export function ForgotPasswordPage() {
         <div style={S.page}>
             <div style={{ ...S.box, textAlign: "center" }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
-                <div style={{ color: "#ffd600", fontFamily: "'Orbitron',monospace", fontSize: 14 }}>Reset Email Sent</div>
+                <div style={{ color: "#ffd600", fontFamily: "monospace", fontSize: 14 }}>Reset Email Sent</div>
                 <div style={{ color: "#3a6080", fontSize: 10, marginTop: 8 }}>Check your inbox for the reset link.</div>
                 <Link to="/login" style={{ ...S.link, display: "block", marginTop: 20 }}>← Back to Login</Link>
             </div>
@@ -302,7 +301,7 @@ export function ForgotPasswordPage() {
 
     return (
         <div style={S.page}>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap');`}</style>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap');`}</style>
             <div style={S.box}>
                 <div style={S.logo}>
                     <h1 style={S.h1}>RESET PASSWORD</h1>

@@ -37,7 +37,7 @@ function AutonomousDebugger() {
     return (
         <Card color={C.pink} style={{ marginBottom: 20, borderLeft: `3px solid ${C.pink}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, color: C.heading, fontWeight: 700 }}>AUTONOMOUS SELF-HEALING ENGINE</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 13, color: C.heading, fontWeight: 700 }}>AUTONOMOUS SELF-HEALING ENGINE</div>
                 <div style={{ fontSize: 9, color: C.pink, background: `${C.pink}11`, padding: "4px 10px", borderRadius: 8, fontWeight: 700 }}>CLAUDE 3.7 AGENT</div>
             </div>
 
@@ -45,9 +45,9 @@ function AutonomousDebugger() {
                 <div style={{ display: "grid", gap: 10, marginBottom: 16 }}>
                     <textarea value={log} onChange={e => setLog(e.target.value)} placeholder="Paste error log here" style={{ width: "100%", height: 80, padding: "10px 14px", background: "rgba(0,0,0,0.05)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontFamily: "monospace", fontSize: 13, outline: "none", resize: "none" }} />
                     <div style={{ display: "flex", gap: 10 }}>
-                        <input value={path} onChange={e => setPath(e.target.value)} placeholder="Codebase path..." style={{ flex: 1, padding: "10px 14px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontFamily: C.font, fontSize: 13, outline: "none" }} />
+                        <input value={path} onChange={e => setPath(e.target.value)} placeholder="Codebase path" style={{ flex: 1, padding: "10px 14px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontFamily: C.font, fontSize: 13, outline: "none" }} />
                         <button onClick={startDebug} disabled={loading} style={{ padding: "10px 24px", background: C.pink, color: "#fff", border: "none", borderRadius: 8, fontFamily: C.font, fontWeight: 900, fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>
-                            {loading ? "WAKING AGENT..." : "FIX ERROR"}
+                            {loading ? "WAKING AGENT" : "FIX ERROR"}
                         </button>
                     </div>
                 </div>
@@ -162,13 +162,13 @@ export default function IssueTrackerSection() {
 
     const startMindvisionCampaign = async (url) => {
         setActiveCampaign({ url, stage: "INITIALIZING", progress: 0 });
-        notify(`CAMPAIGN STARTED: Initiating 360° audit of ${url}...`, "info");
+        notify(`CAMPAIGN STARTED: Initiating 360° audit of ${url}`, "info");
 
         const steps = [
-            { stage: "SEO_CRAWL", label: "Crawling Meta-Intelligence...", p: 25 },
-            { stage: "QA_AUTOMATION", label: "Executing Playwright UI Suite...", p: 50 },
-            { stage: "DEV_AUDIT", label: "Analyzing Source Complexity & JS Health...", p: 75 },
-            { stage: "INGESTION", label: "Streaming Findings to Resolution Matrix...", p: 100 }
+            { stage: "SEO_CRAWL", label: "Crawling Meta-Intelligence", p: 25 },
+            { stage: "QA_AUTOMATION", label: "Executing Playwright UI Suite", p: 50 },
+            { stage: "DEV_AUDIT", label: "Analyzing Source Complexity & JS Health", p: 75 },
+            { stage: "INGESTION", label: "Streaming Findings to Resolution Matrix", p: 100 }
         ];
 
         for (const step of steps) {
@@ -195,7 +195,7 @@ export default function IssueTrackerSection() {
 
     const processInboundIssues = async (target, type, findings) => {
         setIngesting(true);
-        notify(`NEURAL LINK: Capturing ${findings.critical + findings.high} high-risk findings from ${target}...`, "info");
+        notify(`NEURAL LINK: Capturing ${findings.critical + findings.high} high-risk findings from ${target}`, "info");
 
         await new Promise(r => setTimeout(r, 2000)); // Simulate AI parsing
 
@@ -233,8 +233,8 @@ export default function IssueTrackerSection() {
         if (processingId) return;
         setProcessingId(issue.id);
         setFusionStage(1);
-        setSandboxLogs([`[SENTINEL] Intercepting error data from issue #${issue.id}...`]);
-        notify("SENTINEL FUSION INITIATED: Locking coordinate bridge...", "info");
+        setSandboxLogs([`[SENTINEL] Intercepting error data from issue #${issue.id}`]);
+        notify("SENTINEL FUSION INITIATED: Locking coordinate bridge", "info");
 
         // Phase 1: JIRA Synchronization & Metadata Enrichment
         await new Promise(r => setTimeout(r, 1800));
@@ -247,13 +247,13 @@ export default function IssueTrackerSection() {
         setFusionStage(2);
         await new Promise(r => setTimeout(r, 2200));
         setSandboxLogs(prev => [...prev, `[ORACLE] Analyzed impacted systems: ${issue.impact?.join(", ") || "Generic System"}`]);
-        setSandboxLogs(prev => [...prev, `[ORACLE] Root cause isolated to local module context. Patch proposal generated.`]);
-        notify("COGNITIVE ANALYSIS: Root cause and impact dependencies mapped.", "info");
+        setSandboxLogs(prev => [...prev, `[ORACLE] Root cause isolated to local module context. Patch proposal generated`]);
+        notify("COGNITIVE ANALYSIS: Root cause and impact dependencies mapped", "info");
 
         // Phase 3: Auto-Debug & Patching in Sandbox
         setFusionStage(3);
         await new Promise(r => setTimeout(r, 2500));
-        setSandboxLogs(prev => [...prev, `[HEALER] Spinning up Docker sandbox...`]);
+        setSandboxLogs(prev => [...prev, `[HEALER] Spinning up Docker sandbox`]);
         setSandboxLogs(prev => [...prev, `[HEALER] Applying autonomous patch to ephemeral branch.`]);
         setSandboxLogs(prev => [...prev, `[HEALER] Running Playwright regression suite: 0 regressions found.`]);
         notify("SANDBOX REMEDIATION: Autonomous patch verified and applied.", "success");
@@ -358,7 +358,7 @@ export default function IssueTrackerSection() {
                             boxShadow: autoPilot ? `0 0 15px ${C.cyan}33` : "none"
                         }}
                     >
-                        {autoPilot ? "⚡ AUTO-PILOT ON" : "⚪ AUTO-PILOT OFF"}
+                        {autoPilot ? "⚡ AUTO-PILOT ON" : "AUTO-PILOT OFF"}
                     </div>
 
                     {ingesting && (
@@ -525,7 +525,7 @@ export default function IssueTrackerSection() {
                 {editing && (
                     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
                         <form onSubmit={handleSave} style={{ width: 400, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
-                            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 14, fontWeight: 900, color: C.heading, marginBottom: 24, borderBottom: `1px solid ${C.border}`, paddingBottom: 16 }}>MODIFY <span style={{ color: C.pink }}>INTEL</span> #{editing.id}</div>
+                            <div style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 900, color: C.heading, marginBottom: 24, borderBottom: `1px solid ${C.border}`, paddingBottom: 16 }}>MODIFY <span style={{ color: C.pink }}>INTEL</span> #{editing.id}</div>
                             <div style={{ marginBottom: 16 }}>
                                 <label style={{ display: "block", fontSize: 10, color: C.muted, fontWeight: 800, marginBottom: 8 }}>ISSUE TITLE</label>
                                 <input value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })} style={{ width: "100%", padding: "12px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontSize: 12 }} />
@@ -560,7 +560,7 @@ export default function IssueTrackerSection() {
                     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
                         <div style={{ width: 600, background: C.panel, border: `1px solid ${C.pink}44`, borderRadius: 16, overflow: "hidden", boxShadow: "0 40px 100px rgba(0,0,0,0.8)", animation: "modalIn 0.3s ease-out" }}>
                             <div style={{ padding: "20px 32px", background: `linear-gradient(90deg, ${C.pink}33, transparent)`, borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, fontWeight: 900, color: C.heading, letterSpacing: 1.5 }}><span style={{ color: C.pink }}>ISSUE INTEL</span> #{viewing.id}</div>
+                                <div style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 900, color: C.heading, letterSpacing: 1.5 }}><span style={{ color: C.pink }}>ISSUE INTEL</span> #{viewing.id}</div>
                                 <div style={{ fontSize: 9, color: "#fff", background: viewing.severity === "Critical" ? C.red : (viewing.severity === "High" ? C.orange : C.green), padding: "4px 10px", borderRadius: 4, fontWeight: 800 }}>{viewing.severity.toUpperCase()}</div>
                             </div>
 

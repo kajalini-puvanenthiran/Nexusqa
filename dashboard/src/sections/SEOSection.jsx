@@ -7,6 +7,8 @@ import { seo } from "../api/client";
 function LiveSEOAudit() {
     const { notify } = useNotify();
     const [url, setUrl] = useState("");
+    const [creds, setCreds] = useState({ user: "", pass: "" });
+    const [showCreds, setShowCreds] = useState(false);
     const [task, setTask] = useState(null);
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -15,7 +17,10 @@ function LiveSEOAudit() {
         setLoading(true); setTask(null); setStatus(null);
         notify("Initializing Deep SEO Extraction...", "info");
         try {
-            const res = await seo.audit(url);
+            const res = await seo.audit({ 
+                url, 
+                credentials: creds.user ? creds : null 
+            });
             setTask(res.data.task_id);
         } catch (e) { notify("Audit initiation failed", "error"); setLoading(false); }
     };
@@ -50,15 +55,42 @@ function LiveSEOAudit() {
     return (
         <Card color={C.green} style={{ marginBottom: 20, borderLeft: `3px solid ${C.green}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, color: C.heading, fontWeight: 900 }}>AUTONOMOUS SEO ENGINE</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 13, color: C.heading, fontWeight: 900 }}>AUTONOMOUS SEO ENGINE</div>
                 <div style={{ fontSize: 9, color: C.green, background: `${C.green}11`, padding: "4px 10px", borderRadius: 8, fontWeight: 700 }}>CLAUDE 3.7 VISION ENGINE</div>
             </div>
 
-            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                <input value={url} onChange={e => setUrl(e.target.value)} placeholder="Target URL..." style={{ flex: 1, padding: "12px 16px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontFamily: C.font, fontSize: 13, outline: "none" }} />
-                <button onClick={startAudit} disabled={loading} style={{ padding: "12px 28px", background: C.green, color: "#000", border: "none", borderRadius: 8, fontFamily: C.font, fontWeight: 900, fontSize: 11, cursor: "pointer", transition: "all 0.2s" }}>
-                    {loading ? "SCANNING..." : "LAUNCH AUDIT"}
-                </button>
+            <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+                <div style={{ display: "flex", gap: 10 }}>
+                    <input value={url} onChange={e => setUrl(e.target.value)} placeholder="Target URL..." style={{ flex: 1, padding: "12px 16px", background: C.inputBg, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, fontFamily: C.font, fontSize: 13, outline: "none" }} />
+                    <button
+                        onClick={() => setShowCreds(!showCreds)}
+                        style={{ padding: "0 14px", background: "rgba(255,255,255,0.05)", border: `1px solid ${showCreds ? C.green : C.border}`, color: showCreds ? C.green : C.muted, borderRadius: 8, fontSize: 9, fontWeight: 900, cursor: "pointer", transition: "0.3s" }}
+                    >
+                        {showCreds ? "✕ CLOSE CRED" : "+ ADD CRED"}
+                    </button>
+                    <button onClick={startAudit} disabled={loading} style={{ padding: "12px 28px", background: C.green, color: "#000", border: "none", borderRadius: 8, fontFamily: C.font, fontWeight: 900, fontSize: 11, cursor: "pointer", transition: "all 0.2s" }}>
+                        {loading ? "SCANNING..." : "LAUNCH AUDIT"}
+                    </button>
+                </div>
+
+                {showCreds && (
+                    <div style={{ display: "flex", gap: 12, animation: "fadeIn 0.3s ease-out", padding: "12px", background: "rgba(0,0,0,0.1)", borderRadius: 8, border: `1px dashed ${C.green}33` }}>
+                        <div style={{ fontSize: 9, color: C.green, fontWeight: 900, width: 80, display: "flex", alignItems: "center" }}>AUTH TAGS:</div>
+                        <input
+                            placeholder="USERNAME / IDENTITY"
+                            value={creds.user}
+                            onChange={e => setCreds({ ...creds, user: e.target.value })}
+                            style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                        />
+                        <input
+                            type="password"
+                            placeholder="PASSWORD / TOKEN"
+                            value={creds.pass}
+                            onChange={e => setCreds({ ...creds, pass: e.target.value })}
+                            style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                        />
+                    </div>
+                )}
             </div>
 
             {status && (
@@ -84,7 +116,12 @@ function LiveSEOAudit() {
                                             ["SAVED", status.results.auto_fixed + " hrs", C.pink]
                                         ].map(([l, v, c]) => (
                                             <div key={l} style={{ textAlign: "center" }}>
-                                                <div style={{ fontSize: 20, fontWeight: 900, color: c, fontFamily: "'Orbitron', sans-serif" }}>{v}</div>
+                                                {status.results.authenticated && l === "SEO SCORE" && (
+                                                    <div style={{ position: "absolute", top: -15, left: "50%", transform: "translateX(-50%)", width: "max-content" }}>
+                                                         <span style={{ fontSize: 7, background: `${C.green}22`, color: C.green, padding: "1px 6px", borderRadius: 4, fontWeight: 900 }}>AUTHENTICATED</span>
+                                                    </div>
+                                                )}
+                                                <div style={{ fontSize: 20, fontWeight: 900, color: c, fontFamily: "sans-serif" }}>{v}</div>
                                                 <div style={{ fontSize: 8, color: C.muted, fontWeight: 700, marginTop: 4 }}>{l}</div>
                                             </div>
                                         ))}
@@ -160,7 +197,7 @@ export default function SEOSection() {
             <LiveSEOAudit />
 
             <Card color={C.green} style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: "'Orbitron', monospace", fontSize: 11, color: C.green, marginBottom: 14 }}>SEO SCAN → REPORT → AUTO-FIX → VERIFY LOOP</div>
+                <div style={{ fontFamily: "monospace", fontSize: 11, color: C.green, marginBottom: 14 }}>SEO SCAN → REPORT → AUTO-FIX → VERIFY LOOP</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                     {[
                         { phase: "01 CRAWL", items: ["Full site spider", "Render JS pages", "Extract all meta", "Capture screenshots"] },

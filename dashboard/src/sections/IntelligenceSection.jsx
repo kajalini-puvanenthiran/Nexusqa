@@ -6,6 +6,8 @@ import client from "../api/client";
 export default function IntelligenceSection({ type, title, subtitle, icon, color, setActive }) {
     const [running, setRunning] = useState(false);
     const [url, setUrl] = useState("");
+    const [creds, setCreds] = useState({ user: "", pass: "" });
+    const [showCreds, setShowCreds] = useState(false);
     const [results, setResults] = useState(null);
     const [log, setLog] = useState([]);
     const [marked, setMarked] = useState(() => localStorage.getItem(`nexus_marked_${title}`) === "true");
@@ -21,7 +23,12 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
 
         try {
             addLog("Autonomous Agent detecting target architecture...");
-            const res = await client.post("/scans/", { url, target_type: type, mode: "full" });
+            const res = await client.post("/scans/", {
+                url,
+                target_type: type,
+                mode: "full",
+                credentials: creds.user ? creds : null
+            });
 
             addLog(`Identification success: ${res.data.target_type.toUpperCase()} architecture detected.`);
             addLog("Parsing performance vectors...");
@@ -97,20 +104,47 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
             </div>
 
             <Card style={{ marginBottom: 20, padding: 20 }}>
-                <div style={{ display: "flex", gap: 12 }}>
-                    <input
-                        placeholder="ENTER TARGET URL (e.g. https://nexusqa.com)"
-                        value={url}
-                        onChange={e => setUrl(e.target.value)}
-                        style={{ flex: 1, background: C.inputBg, border: `1px solid ${C.border}`, padding: "12px 20px", borderRadius: 8, color: C.text, fontSize: 13, outline: "none", fontFamily: "monospace" }}
-                    />
-                    <button
-                        onClick={runIntel}
-                        disabled={running}
-                        style={{ padding: "6px 14px", background: color, color: "#000", border: "none", borderRadius: 8, fontWeight: 900, cursor: "pointer", fontSize: 11, letterSpacing: 1 }}
-                    >
-                        {running ? "SCANNING..." : "LAUNCH SCAN"}
-                    </button>
+                <div style={{ display: "grid", gap: 12 }}>
+                    <div style={{ display: "flex", gap: 12 }}>
+                        <input
+                            placeholder="ENTER TARGET URL (e.g. https://nexusqa.com)"
+                            value={url}
+                            onChange={e => setUrl(e.target.value)}
+                            style={{ flex: 1, background: C.inputBg, border: `1px solid ${C.border}`, padding: "12px 20px", borderRadius: 8, color: C.text, fontSize: 13, outline: "none", fontFamily: "monospace" }}
+                        />
+                        <button
+                            onClick={() => setShowCreds(!showCreds)}
+                            style={{ padding: "0 14px", background: "rgba(255,255,255,0.05)", border: `1px solid ${showCreds ? color : C.border}`, color: showCreds ? color : C.muted, borderRadius: 8, fontSize: 9, fontWeight: 900, cursor: "pointer", transition: "0.3s" }}
+                        >
+                            {showCreds ? "✕ CLOSE CRED" : "+ ADD CRED"}
+                        </button>
+                        <button
+                            onClick={runIntel}
+                            disabled={running}
+                            style={{ padding: "6px 20px", background: color, color: "#000", border: "none", borderRadius: 8, fontWeight: 900, cursor: "pointer", fontSize: 11, letterSpacing: 1 }}
+                        >
+                            {running ? "SCANNING..." : "LAUNCH SCAN"}
+                        </button>
+                    </div>
+
+                    {showCreds && (
+                        <div style={{ display: "flex", gap: 12, animation: "fadeIn 0.3s ease-out", padding: "12px", background: "rgba(0,0,0,0.1)", borderRadius: 8, border: `1px dashed ${color}33` }}>
+                            <div style={{ fontSize: 9, color: color, fontWeight: 900, width: 80, display: "flex", alignItems: "center" }}>AUTH TAGS:</div>
+                            <input
+                                placeholder="USERNAME / IDENTITY"
+                                value={creds.user}
+                                onChange={e => setCreds({ ...creds, user: e.target.value })}
+                                style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                            />
+                            <input
+                                type="password"
+                                placeholder="PASSWORD / TOKEN"
+                                value={creds.pass}
+                                onChange={e => setCreds({ ...creds, pass: e.target.value })}
+                                style={{ flex: 1, background: "transparent", border: "none", borderBottom: `1px solid ${C.border}`, padding: "4px 8px", color: C.text, fontSize: 11, outline: "none" }}
+                            />
+                        </div>
+                    )}
                 </div>
             </Card>
 
@@ -121,6 +155,11 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
                         {results ? (
                             <div style={{ width: '100%', padding: 20 }}>
                                 <div style={{ fontSize: 40, textAlign: 'center', color: results.score > 80 ? C.green : C.orange }}>{results.score}</div>
+                                {results.credentials && (
+                                    <div style={{ textAlign: "center", marginTop: -5, marginBottom: 10 }}>
+                                        <span style={{ fontSize: 8, background: `${color}22`, color: color, padding: "2px 8px", borderRadius: 10, fontWeight: 900, letterSpacing: 1 }}>AUTHENTICATED SCAN</span>
+                                    </div>
+                                )}
                                 <div style={{ fontSize: 10, textAlign: 'center', color: C.muted, fontWeight: 800, marginTop: 4 }}>HEALTH INDEX</div>
                                 <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                     <div style={{ fontSize: 9, color: C.text }}>CRITICAL: <span style={{ color: C.red }}>{results.findings.critical}</span></div>
@@ -132,7 +171,7 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
                         ) : (
                             <div style={{ textAlign: "center" }}>
                                 <div style={{ fontSize: 24, marginBottom: 8 }}></div>
-                                <div style={{ fontSize: 11, color: C.muted }}>Awaiting data stream from {type} nodes...</div>
+                                <div style={{ fontSize: 11, color: C.muted }}>Awaiting data stream from {type} nodes</div>
                             </div>
                         )}
                     </div>
@@ -143,7 +182,7 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
                     <div style={{ background: "rgba(0,0,0,0.2)", height: 200, borderRadius: 8, padding: 16, fontFamily: "monospace", fontSize: 10, color: C.text, overflowY: "auto" }}>
                         {log.map((line, i) => <div key={i} style={{ marginBottom: 4 }}>{line}</div>)}
                         {!running && log.length === 0 && <div style={{ color: C.muted, textAlign: "center", paddingTop: 80 }}>AGENTS STANDING BY.</div>}
-                        {running && <div style={{ color: color, marginTop: 8 }}>● ANALYZING...</div>}
+                        {running && <div style={{ color: color, marginTop: 8 }}>ANALYZING</div>}
                     </div>
                 </Card>
             </div>
@@ -157,7 +196,7 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
 
             {results && results.findings?.qa_stats && (
                 <div style={{ animation: "fadeIn 0.6s ease-out" }}>
-                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 14, fontWeight: 900, color: C.heading, marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 900, color: C.heading, marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ color: C.gold }}></span> NEXUS INTELLIGENCE <span style={{ color: C.cyan }}>QA REPORT</span>
                     </div>
 
@@ -257,7 +296,7 @@ export default function IntelligenceSection({ type, title, subtitle, icon, color
                 ].map(s => (
                     <Card key={s.l} style={{ textAlign: "center", padding: "20px" }}>
                         <div style={{ fontSize: 8, color: C.muted, fontWeight: 800, marginBottom: 4 }}>{s.l}</div>
-                        <div style={{ fontSize: 20, color: C.heading, fontWeight: 900, fontFamily: "'Orbitron', sans-serif" }}>{s.v}</div>
+                        <div style={{ fontSize: 20, color: C.heading, fontWeight: 900, fontFamily: "sans-serif" }}>{s.v}</div>
                     </Card>
                 ))}
             </div>

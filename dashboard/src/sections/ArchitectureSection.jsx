@@ -14,8 +14,8 @@ const LAYERS = [
         desc: "The central LangGraph state machine that breaks targets into testable units, assigns agents, manages parallel execution, and maintains global scan state."
     },
     {
-        n: "L2", title: "PARALLEL TEST AGENTS (18 Agents)", color: C.gold,
-        components: ["UI Agent", "API Agent", "Security Agent", "Performance Agent", "A11y Agent", "SEO Agent", "Data Agent", "ERP Agent", "Debug Agent", "Issue Tracker", "Code Analyzer", "JIRA Bot", "Mobile Agent", "SEO Repair Agent", "POS Agent", "Fuzzer Agent", "Regression Agent", "Report Agent"],
+        n: "L2", title: "PARALLEL TEST AGENTS (17 Agents)", color: C.gold,
+        components: ["UI Agent", "API Agent", "Security Agent", "Performance Agent", "A11y Agent", "SEO Agent", "Data Agent", "ERP Agent", "Debug Agent", "Issue Tracker", "Code Analyzer", "JIRA Bot", "Mobile Agent", "SEO Repair Agent", "Fuzzer Agent", "Regression Agent", "Report Agent"],
         desc: "18 specialized agents operating concurrently via asyncio. Each owns a domain and communicates results back through the shared state store."
     },
     {
@@ -79,7 +79,7 @@ export default function ArchitectureSection() {
                 <Card key={layer.n} color={layer.color} style={{ marginBottom: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                         <div>
-                            <span style={{ fontFamily: "'Orbitron', monospace", fontSize: 10, color: layer.color, marginRight: 10 }}>{layer.n}</span>
+                            <span style={{ fontFamily: "monospace", fontSize: 10, color: layer.color, marginRight: 10 }}>{layer.n}</span>
                             <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#fff", fontSize: 13 }}>{layer.title}</span>
                         </div>
                         <div style={{ fontSize: 9, color: layer.color, border: `1px solid ${layer.color}33`, padding: "2px 8px", borderRadius: 3, fontFamily: "monospace" }}>

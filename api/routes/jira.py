@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..auth import get_current_user
@@ -44,7 +44,9 @@ mock_jira_db = [
         "description": "Critical failure in the case submission pipeline preventing record creation.",
         "reporter": "Nexus Intelligence Agent",
         "logs": 'Error: "Failed to create case – Server error 500"',
-        "created_at": "2026-03-10T09:30:00Z"
+        "created_at": "2026-03-10T09:30:00Z",
+        "healing_status": "HEALED",
+        "fusion_id": "SENTINEL-X92A1"
     }
 ]
 
@@ -53,44 +55,64 @@ async def get_tickets(user: User = Depends(get_current_user)):
     return mock_jira_db
 
 @router.post("/sync")
-async def sync_jira(user: User = Depends(get_current_user)):
+async def sync_jira(background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     """Autonomous JIRA identification and creation engine"""
-    classifier = NeuralJiraClassifier()
-    
-    # Simulated autonomous findings from the "Neural Scan Stream"
-    raw_findings = [
-        {"desc": "Critical SQL vulnerability in Auth module", "sev": "CRITICAL", "mod": "Security"},
-        {"desc": "Optimize the dashboard loading speed for mobile users", "sev": "MEDIUM", "mod": "Frontend"},
-        {"desc": "Missing user profile export feature for GDPR compliance", "sev": "HIGH", "mod": "Compliance"},
-        {"desc": "Configure the SMTP relay for the production environment", "sev": "LOW", "mod": "DevOps"},
-    ]
-    
-    selected = random.choice(raw_findings)
-    issue_type = classifier.classify(selected["desc"], selected["sev"])
-    
-    ticket_id = f"NEXUS-{random.randint(800, 999)}"
-    new_ticket = {
-        "id": ticket_id,
-        "title": f"[{selected['mod'].upper()}] {selected['desc']}",
-        "type": issue_type,
-        "status": "Open",
-        "priority": selected["sev"],
-        "severity": selected["sev"],
-        "module": selected["mod"],
-        "environment": "Production Environment | Nexus Core | Multi-Agent",
-        "preconditions": "Nexus agent performing global telemetry scan",
-        "steps": "1. Initiate autonomous scan\n2. Intercept response stream\n3. Identify protocol violation\n4. Trigger JIRA automation",
-        "expected": "No violations detected",
-        "actual": f"Identified {selected['desc']}",
-        "description": f"Automatically identified as {issue_type} by Nexus Neural Classifier based on telemetry data.",
-        "assignee": f"{selected['mod']} Agent",
-        "reporter": "Nexus Intelligence Engine",
-        "logs": f"AGENT_LOG: Identification confirmed. Routing to {issue_type} protocol.",
-        "created_at": datetime.utcnow().isoformat()
-    }
-    
-    mock_jira_db.insert(0, new_ticket)
-    return {"status": "success", "synced_count": 1, "created_id": ticket_id, "identified_type": issue_type}
+    try:
+        from .debug import run_debug_task, active_debug_tasks
+        classifier = NeuralJiraClassifier()
+        
+        # Simulated autonomous findings from the "Neural Scan Stream"
+        raw_findings = [
+            {"desc": "Critical SQL vulnerability in Auth module", "sev": "CRITICAL", "mod": "Security"},
+            {"desc": "Optimize the dashboard loading speed for mobile users", "sev": "MEDIUM", "mod": "Frontend"},
+            {"desc": "Missing user profile export feature for GDPR compliance", "sev": "HIGH", "mod": "Compliance"},
+            {"desc": "Configure the SMTP relay for the production environment", "sev": "LOW", "mod": "DevOps"},
+        ]
+        
+        selected = random.choice(raw_findings)
+        issue_type = classifier.classify(selected["desc"], selected["sev"])
+        
+        ticket_id = f"NEXUS-{random.randint(800, 999)}"
+        fusion_id = f"SENTINEL-{random.choice(['A', 'B', 'C'])}{random.randint(10, 99)}"
+        
+        new_ticket = {
+            "id": ticket_id,
+            "title": f"[{selected['mod'].upper()}] {selected['desc']}",
+            "type": issue_type,
+            "status": "Open",
+            "priority": selected["sev"],
+            "severity": selected["sev"],
+            "module": selected["mod"],
+            "environment": "Production Environment | Nexus Core | Multi-Agent",
+            "preconditions": "Nexus agent performing global telemetry scan",
+            "steps": "1. Initiate autonomous scan\n2. Intercept response stream\n3. Identify protocol violation\n4. Trigger JIRA automation",
+            "expected": "No violations detected",
+            "actual": f"Identified {selected['desc']}",
+            "description": f"Automatically identified as {issue_type} by Nexus Neural Classifier based on telemetry data.",
+            "assignee": f"{selected['mod']} Agent",
+            "reporter": "Nexus Intelligence Engine",
+            "logs": f"AGENT_LOG: Identification confirmed. Routing to {issue_type} protocol.",
+            "created_at": datetime.utcnow().isoformat(),
+            "healing_status": "QUEUED" if issue_type == "BUG" else "STANDBY",
+            "fusion_id": fusion_id if issue_type == "BUG" else None
+        }
+        
+        # Trigger Autonomous Healing if it's a BUG
+        if issue_type == "BUG":
+            new_ticket["logs"] += f"\n[SENTINEL]: {fusion_id} intercepting for autonomous fix."
+            debug_id = f"debug-{random.randint(1000, 9999)}"
+            active_debug_tasks[debug_id] = {
+                "status": "analyzing",
+                "progress": 10,
+                "logs": [f"Intercepted {ticket_id} from Neural Feed. Initiating sentinel heal..."]
+            }
+            background_tasks.add_task(run_debug_task, debug_id, new_ticket["logs"], "/dashboard/src/api/client.js")
+        
+        mock_jira_db.insert(0, new_ticket)
+        return {"status": "success", "synced_count": 1, "created_id": ticket_id, "identified_type": issue_type}
+    except Exception as e:
+        print(f"[JIRA ERROR] {e}")
+        raise HTTPException(status_code=500, detail="Intelligence connection loss during neural sync.")
 
 @router.put("/tickets/{ticket_id}")
 async def update_ticket(ticket_id: str, ticket: dict, user: User = Depends(get_current_user)):

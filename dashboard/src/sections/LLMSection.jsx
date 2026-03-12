@@ -59,7 +59,7 @@ export default function LLMSection() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                                     <div>
                                         <div style={{ fontSize: 9, color: C.muted, fontWeight: 800, letterSpacing: 1 }}>{m.provider.toUpperCase()}</div>
-                                        <div style={{ fontSize: 13, fontWeight: 900, color: isActive ? C.heading : C.text, fontFamily: "'Orbitron', sans-serif" }}>{m.name}</div>
+                                        <div style={{ fontSize: 13, fontWeight: 900, color: isActive ? C.heading : C.text, fontFamily: "sans-serif" }}>{m.name}</div>
                                     </div>
                                     <GlowBadge color={m.tier === "FREE" ? C.green : (m.tier === "LOCAL" ? C.cyan : C.gold)} small>{m.tier}</GlowBadge>
                                 </div>

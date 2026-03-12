@@ -22,10 +22,9 @@ export function SectionTitle({ icon, title, sub, color = C.cyan }) {
     return (
         <div style={{ marginBottom: 32 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                <span style={{ fontSize: 22, color }}>{icon}</span>
                 <h2 style={{
                     margin: 0,
-                    fontFamily: "'Orbitron', sans-serif",
+                    fontFamily: "sans-serif",
                     fontWeight: 900,
                     fontSize: 22,
                     color: C.heading,

@@ -11,7 +11,7 @@ function ProtectedRoute({ children, adminOnly }) {
   if (loading) return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: "2px solid #00e5ff" }}>
       <div style={{ fontSize: 40, marginBottom: 20 }}></div>
-      <div style={{ color: "#00e5ff", fontFamily: "Orbitron, monospace", fontSize: 14 }}>NEXUS CORE CONNECTING</div>
+      <div style={{ color: "#00e5ff", fontFamily: "monospace", fontSize: 14 }}>NEXUS CORE CONNECTING</div>
       <div style={{ color: "#3a6080", fontSize: 10, marginTop: 10 }}>Checking protocols & encrypted session</div>
     </div>
   );

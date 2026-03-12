@@ -12,6 +12,7 @@ class DebugRequest(BaseModel):
 router = APIRouter()
 
 active_debug_tasks = {}
+f_active_debug_tasks = active_debug_tasks # Alias for cross-module compatibility
 
 @router.post("/run")
 async def start_debug(req: DebugRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
@@ -71,3 +72,8 @@ async def get_debug_status(task_id: str):
     if task_id not in active_debug_tasks:
         raise HTTPException(404, "Task not found")
     return active_debug_tasks[task_id]
+
+@router.get("/tasks")
+async def list_debug_tasks(user: User = Depends(get_current_user)):
+    """Returns a list of all active and completed debug tasks."""
+    return [{"id": k, **v} for k, v in active_debug_tasks.items()]

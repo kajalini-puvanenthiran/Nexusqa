@@ -35,7 +35,7 @@ class ScanResponse(BaseModel):
 
 from ..agents_logic import QAAgent, BugTrackerAgent, UniversalTesterAgent, TargetDetectorAgent
 
-def simulate_scan(url: str, target_type: str, mode: str) -> dict:
+def simulate_scan(url: str, target_type: str, mode: str, credentials: dict = None) -> dict:
     """Enhanced scan result — provides mode-specific metrics"""
     import random
     
@@ -50,8 +50,8 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
     if target_type in ["website", "unknown"] and detected_type != "website":
         target_type = detected_type
 
-    uta = UniversalTesterAgent(target_type)
-    f["target_metrics"] = uta.run_analysis(url, mode)
+    uta = UniversalTesterAgent(target_type, credentials=credentials)
+    f["target_metrics"] = uta.run_analysis(url, mode, credentials=credentials)
     
     if mode == "security":
         f["critical"] = random.randint(1, 2)
@@ -66,12 +66,12 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
         f["medium"] = random.randint(2, 5)
         f["low"] = random.randint(5, 10)
     elif mode == "qa":
-        qa = QAAgent().run_suite(url, target_type)
+        qa = QAAgent().run_suite(url, target_type, credentials=credentials)
         f["medium"] = qa["failed"]
         f["low"] = random.randint(5, 10)
         f["qa_stats"] = qa
     elif mode == "bug_tracker":
-        bt = BugTrackerAgent().analyze_system(url, target_type)
+        bt = BugTrackerAgent().analyze_system(url, target_type, credentials=credentials)
         f["critical"] = 1 if bt["high_severity_alerts"] else 0
         f["high"] = bt["bugs_isolated"]
         f["auto_fixed"] = bt["auto_fix_ready"]
@@ -82,7 +82,7 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
         f["medium"] = random.randint(10, 20)
         f["low"] = random.randint(20, 40)
         # Add QA stats to full mode
-        qa = QAAgent().run_suite(url, target_type)
+        qa = QAAgent().run_suite(url, target_type, credentials=credentials)
         f["qa_stats"] = qa
     else: # ui, accessibility
         f["medium"] = random.randint(1, 4)
@@ -90,7 +90,7 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
 
     # Always ensure some QA context for the reports if not explicitly run
     if "qa_stats" not in f and mode != "bug_tracker":
-        f["qa_stats"] = QAAgent().run_suite(url, target_type)
+        f["qa_stats"] = QAAgent().run_suite(url, target_type, credentials=credentials)
 
     if mode not in ["bug_tracker"]:
          f["auto_fixed"] = random.randint(1, 5) if f["medium"] > 0 else 0
@@ -109,18 +109,26 @@ def simulate_scan(url: str, target_type: str, mode: str) -> dict:
         f"Health Score: {score}/100."
     )
     
+    performance_bonus = 0
+    if credentials:
+        summary += f" [AUTHENTICATED SCAN ENABLED: {len(credentials)} tags identified]"
+        # Credentials allow for deeper discovery
+        if random.random() > 0.5:
+             f["critical"] += 1 # Found deeper issue behind login
+        performance_bonus = 5
+
     return {
         "findings": f,
         "summary": summary,
-        "score": score
+        "score": min(100, score + performance_bonus)
     }
 
 @router.post("/", response_model=ScanResponse)
-def start_scan(req: ScanRequest, db: Session = Depends(get_db),
+def start_scan(req: ScanRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db),
                user: User = Depends(get_current_user)):
-    result = simulate_scan(req.url, req.target_type, req.mode)
+    result = simulate_scan(req.url, req.target_type, req.mode, req.credentials)
     scan   = Scan(user_id=user.id, url=req.url, target_type=req.target_type, mode=req.mode, status="done",
-                  findings=result["findings"], summary=result["summary"],
+                  findings=result["findings"], credentials=req.credentials, summary=result["summary"],
                   score=result["score"], completed_at=datetime.utcnow())
     db.add(scan)
     db.commit(); db.refresh(scan)
@@ -129,6 +137,14 @@ def start_scan(req: ScanRequest, db: Session = Depends(get_db),
     
     # Manually attach report_id for ScanResponse
     scan.report_id = report.id
+    
+    # NEW: Fully Autonomous Inbound Sync
+    if scan.findings.get("critical", 0) > 0 or scan.findings.get("high", 0) > 0:
+        from .jira import sync_jira
+        # We trigger this in the background to not slow down the scan response
+        print(f"[AUTO] Priority findings detected in scan {scan.id}. Triggering JIRA sync...", flush=True)
+        background_tasks.add_task(sync_jira, background_tasks, user)
+
     return scan
 
 def _generate_report(scan: Scan, db: Session):

@@ -72,7 +72,7 @@ export default function HomeSection({ setActive }) {
                         CORE INTELLIGENCE SYSTEM [V4.2.0]
                     </div>
 
-                    <h1 style={{ fontFamily: "'Orbitron', sans-serif", fontWeight: 900, fontSize: 52, margin: "0 0 12px 0", lineHeight: 1, color: C.heading }}>
+                    <h1 style={{ fontFamily: "sans-serif", fontWeight: 900, fontSize: 52, margin: "0 0 12px 0", lineHeight: 1, color: C.heading }}>
                         NEXUS<span style={{ color: C.cyan }}>QA</span>
                     </h1>
                     <div style={{ fontWeight: 600, fontSize: 13, color: C.muted, marginBottom: 32, letterSpacing: "1px", maxWidth: 450, lineHeight: 1.6 }}>
@@ -145,14 +145,14 @@ export default function HomeSection({ setActive }) {
             {/* Metrics Overview */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
                 {[
-                    { v: "18", l: "ACTIVE AGENTS", c: C.cyan, desc: "Distributed Intelligence" },
+                    { v: "17", l: "ACTIVE AGENTS", c: C.cyan, desc: "Distributed Intelligence" },
                     { v: "FULL", l: "HEALING COV.", c: C.green, desc: "Self-Repair Ratio" },
                     { v: "420k", l: "DAILY OPS", c: C.gold, desc: "Autonomous Signals" },
                     { v: "14ms", l: "LATENCY", c: C.violet, desc: "Analysis Speed" },
                 ].map(s => (
                     <Card key={s.l} color={s.c} style={{ overflow: "hidden", position: "relative" }}>
                         <div style={{ position: "absolute", top: -10, right: -10, fontSize: 40, opacity: 0.03 }}>{s.l[0]}</div>
-                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 28, fontWeight: 900, color: s.c, marginBottom: 4 }}>{s.v}</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 28, fontWeight: 900, color: s.c, marginBottom: 4 }}>{s.v}</div>
                         <div style={{ fontSize: 9, color: C.heading, fontWeight: 900, letterSpacing: 1 }}>{s.l}</div>
                         <div style={{ fontSize: 8, color: C.muted, marginTop: 4, fontWeight: 600 }}>{s.desc}</div>
                     </Card>
@@ -165,7 +165,6 @@ export default function HomeSection({ setActive }) {
                     { id: "home", name: "WEBSITE INTEL", status: "READY", color: C.cyan, link: "scans", det: "Full DOM & SEO Audit" },
                     { id: "sw", name: "SOFTWARE SYS", status: "STABLE", color: C.violet, link: "agents", det: "Logic & Binary Tracing" },
                     { id: "mobile", name: "MOBILE APPS", status: "ACTIVE", color: C.gold, link: "mobile", det: "Touch & UX Heuristics" },
-                    { id: "pos", name: "POS SYSTEM", status: "ACTIVE", color: C.green, link: "software", det: "Hardware Integration" },
                 ].map(p => (
                     <div
                         key={p.id}
@@ -177,7 +176,7 @@ export default function HomeSection({ setActive }) {
                         }}
                     >
                         {/* <div style={{ fontSize: 32, marginBottom: 12 }}>{p.icon}</div> */}
-                        <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 11, fontWeight: 900, color: C.heading, marginBottom: 4 }}>{p.name}</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 900, color: C.heading, marginBottom: 4 }}>{p.name}</div>
                         <div style={{ fontSize: 8, color: C.muted, marginBottom: 16 }}>{p.det}</div>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 9, color: p.color, fontWeight: 900, letterSpacing: 1, background: `${p.color}15`, padding: "4px 12px", borderRadius: 100 }}>
                             <span style={{ width: 5, height: 5, borderRadius: "50%", background: p.color }} />
@@ -190,7 +189,7 @@ export default function HomeSection({ setActive }) {
             <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }}>
                 {/* Capability Matrix */}
                 <Card color={C.gold}>
-                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 12, color: C.gold, marginBottom: 20, letterSpacing: "1px", fontWeight: 900, display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 12, color: C.gold, marginBottom: 20, letterSpacing: "1px", fontWeight: 900, display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ fontSize: 16 }}>◈</span> NEXUS INTEGRATED CAPABILITIESMAP
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
@@ -199,7 +198,7 @@ export default function HomeSection({ setActive }) {
                             ["SEO AUTO-REPAIR", "Autonomous meta-data correction and pattern optimization"],
                             ["JIRA SYNC LAYER", "Zero-click ticket lifecycle management strictly for agents"],
                             ["DEV TRACKER", "Real-time codebase analysis with instant fix proposals"],
-                            ["UNIVERSAL AGENT", "Cross-platform QA for Web, Mobile, and POS systems"],
+                            ["UNIVERSAL AGENT", "Cross-platform QA for Web, Mobile, and Software systems"],
                             ["LLM AGNOSTIC", "Switch backends (OpenAI/Gemini/Ollama) with 1 click"]
                         ].map(([t, d]) => (
                             <div key={t}>
@@ -217,7 +216,7 @@ export default function HomeSection({ setActive }) {
                 <Card color={C.violet} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                     <div>
                         <div style={{ fontSize: 10, color: C.violet, fontWeight: 900, letterSpacing: "1px", marginBottom: 12 }}>MASTER CONTROL PROTOCOL</div>
-                        <div style={{ fontSize: 18, color: C.heading, fontWeight: 900, fontFamily: "'Orbitron', sans-serif", lineHeight: 1.3 }}>DAILY AUTONOMOUS SYSTEM AUDIT</div>
+                        <div style={{ fontSize: 18, color: C.heading, fontWeight: 900, fontFamily: "sans-serif", lineHeight: 1.3 }}>DAILY AUTONOMOUS SYSTEM AUDIT</div>
                         <div style={{ fontSize: 11, color: C.muted, marginTop: 12, lineHeight: 1.6 }}>Initialize a full-stack sequence across all active tracks to identify regressions and security vulnerabilities.</div>
                     </div>
                     <div style={{ marginTop: 24 }}>

@@ -52,11 +52,6 @@ const AGENTS = [
         id: "sw", icon: "💿", name: "SOFTWARE SYSTEM AGENT", color: "#00e5ff", cat: "Systems",
         tests: ["Desktop app installation", "Registry integrity", "Local file system IO", "CPU/RAM spike monitoring"],
         tools: ["WinAppDriver", "AutoIt"], autofix: "Auto-generates installer patches and config repairs"
-    },
-    {
-        id: "pos", icon: "🏧", name: "POS SYSTEM AGENT", color: "#69f0ae", cat: "Systems",
-        tests: ["USB/Thermal printer integration", "Barcode scanner baud rate", "Credit card handshake", "Inventory sync latency"],
-        tools: ["JPOS Emulator", "Cucumber-JVM"], autofix: "Fixes communication protocol errors and data sync logic"
     }
 ];
 
@@ -78,7 +73,7 @@ export default function AgentsSection() {
 
     return (
         <div>
-            <SectionTitle icon="◉" title="18 AI AGENT MISSION CONTROL" sub="Live autonomous operative fleet health and activity monitor" color={C.violet} />
+            <SectionTitle icon="◉" title="17 AI AGENT MISSION CONTROL" sub="Live autonomous operative fleet health and activity monitor" color={C.violet} />
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
@@ -88,7 +83,7 @@ export default function AgentsSection() {
                     { l: "HEALTH SCORE", v: "98.4%", c: C.green },
                 ].map(s => (
                     <div key={s.l} style={{ background: C.panel, border: `1px solid ${s.c}33`, borderRadius: 8, padding: 16, textAlign: "center" }}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: s.c, fontFamily: "'Orbitron', monospace" }}>{s.v}</div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: s.c, fontFamily: "monospace" }}>{s.v}</div>
                         <div style={{ fontSize: 8, color: C.muted, fontFamily: "monospace", marginTop: 4 }}>{s.l}</div>
                     </div>
                 ))}
@@ -112,7 +107,7 @@ export default function AgentsSection() {
                             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                                 <span style={{ fontSize: 20 }}>{agent.icon}</span>
                                 <div>
-                                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 11, fontWeight: 700, color: agent.color }}>{agent.name}</div>
+                                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 700, color: agent.color }}>{agent.name}</div>
                                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
                                         <div style={{ width: 6, height: 6, borderRadius: "50%", background: statuses[agent.id] === "IDLE" ? C.muted : (statuses[agent.id] === "ACTIVE" ? C.green : C.gold), animation: statuses[agent.id] === "IDLE" ? "none" : "pulse 1.5s infinite" }} />
                                         <span style={{ fontSize: 9, color: C.muted, fontWeight: 500 }}>{statuses[agent.id] || "IDLE"}</span>

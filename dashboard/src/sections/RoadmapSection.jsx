@@ -63,7 +63,7 @@ export default function RoadmapSection() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                                     <div>
                                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                                            <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, fontWeight: 900, color: C.heading }}>{p.title.toUpperCase()}</span>
+                                            <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 900, color: C.heading }}>{p.title.toUpperCase()}</span>
                                             {isCurrent && <GlowBadge color={p.color} small>IN PROGRESS</GlowBadge>}
                                             {isComplete && <GlowBadge color={C.green} small>STABLE</GlowBadge>}
                                         </div>
